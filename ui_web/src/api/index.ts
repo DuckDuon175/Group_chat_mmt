@@ -6,8 +6,10 @@ export * from "./api-generated";
 const api_url: string = "http://localhost:3000";
 
 // define authorize common function, we also can config interceptors here
-// define authorize common function, we also can config interceptors here
-const authorizedFetchFunction = (url: RequestInfo, init: RequestInit): Promise<Response> => {
+const authorizedFetchFunction = (
+  url: RequestInfo,
+  init: RequestInit
+): Promise<Response> => {
   const headers = {
     Accept: "application/json",
     "Content-Type": "application/json",
@@ -40,9 +42,29 @@ const scheduleClient = new ApiClientFactory.ScheduleControllerClient(api_url, {
   fetch: authorizedFetchFunction,
 });
 
-const diagnosisClient = new ApiClientFactory.DiagnosisControllerClient(api_url, {
+const diagnosisClient = new ApiClientFactory.DiagnosisControllerClient(
+  api_url,
+  {
+    fetch: authorizedFetchFunction,
+  }
+);
+
+const notificationScheduleClient =
+  new ApiClientFactory.NotificationControllerClient(api_url, {
+    fetch: authorizedFetchFunction,
+  }
+);
+
+const chatClient = new ApiClientFactory.ChatControllerClient(api_url, {
   fetch: authorizedFetchFunction,
 });
+
+const statisticClient = new ApiClientFactory.StatisticControllerClient(
+  api_url,
+  {
+    fetch: authorizedFetchFunction,
+  }
+);
 
 interface IService {
   userService: ApiClientFactory.UserControllerClient;
@@ -51,6 +73,9 @@ interface IService {
   recordService: ApiClientFactory.RecordControllerClient;
   scheduleService: ApiClientFactory.ScheduleControllerClient;
   diagnosisService: ApiClientFactory.DiagnosisControllerClient;
+  notificationScheduleService: ApiClientFactory.NotificationControllerClient;
+  chatService: ApiClientFactory.ChatControllerClient;
+  statisticService: ApiClientFactory.StatisticControllerClient;
 }
 
 export const Service: IService = {
@@ -59,5 +84,8 @@ export const Service: IService = {
   deviceDetailService: deviceDetailClient,
   recordService: recordClient,
   scheduleService: scheduleClient,
-  diagnosisService: diagnosisClient
+  diagnosisService: diagnosisClient,
+  notificationScheduleService: notificationScheduleClient,
+  chatService: chatClient,
+  statisticService: statisticClient,
 };

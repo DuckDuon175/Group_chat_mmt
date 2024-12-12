@@ -3,6 +3,7 @@ import { InjectModel } from "@nestjs/sequelize";
 import { DeviceModel } from "../../entities/device.model";
 import { DeviceRequest } from "./dto/device.request";
 import { DeviceResponse } from "./dto/device.response";
+const sequelize = require("../../config/sequelize");
 
 @Injectable()
 export class DeviceRepository {
@@ -91,5 +92,12 @@ export class DeviceRepository {
         device_type_id: id,
       },
     });
+  }
+
+  async countDevicesPerMonth(): Promise<any[]> {
+    const [result, metadata] = await this.deviceModel.sequelize.query(
+      "SELECT EXTRACT(MONTH FROM FROM_UNIXTIME(start_date)) AS month, COUNT(*) AS device_count FROM devices GROUP BY month ORDER BY month"
+    );
+    return result;
   }
 }

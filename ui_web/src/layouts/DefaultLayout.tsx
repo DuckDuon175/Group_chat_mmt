@@ -31,7 +31,7 @@ export const DefaultLayout = () => {
             <Layout>
               <Content className="main-content">
                 <Col span={22} offset={1} className="children-content">
-                  <div className="content">
+                  <div className="content content2">
                     <Routes />
                   </div>
                 </Col>

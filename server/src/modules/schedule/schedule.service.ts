@@ -86,19 +86,24 @@ export class ScheduleService {
   }
 
   async getScheduleByStartTime(startTime: number): Promise<ScheduleResponse[]> {
-    return this.scheduleRepository.getScheduleByStartTime(startTime);
+    return await this.scheduleRepository.getScheduleByStartTime(startTime);
   }
 
   async getScheduleById(id: string): Promise<ScheduleResponse> {
-    return this.scheduleRepository.getScheduleById(id);
+    return await this.scheduleRepository.getScheduleById(id);
+  }
+
+  async acceptSchedule(schedule_id: string) {
+    return await this.scheduleRepository.acceptSchedule(schedule_id);
   }
 
   async updateSchedule(schedule: ScheduleRequest, id: string) {
-    return this.scheduleRepository.updateScheduleById(schedule, id);
+    return await this.scheduleRepository.updateScheduleById(schedule, id);
   }
 
   async deleteScheduleById(id: string) {
-    return this.scheduleRepository.deleteScheduleById(id);
+    await this.consultationScheduleService.deleteConsultationByScheduleId(id);
+    return await this.scheduleRepository.deleteScheduleById(id);
   }
 
   async getScheduleByPatientId(

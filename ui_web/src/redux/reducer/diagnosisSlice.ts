@@ -7,12 +7,14 @@ interface IScheduleState {
   diagnosis: DiagnosisResponse;
   loadCreateDiagnosisStatus: ApiLoadingStatus;
   loadGetDiagnosisByScheduleIdStatus: ApiLoadingStatus;
+  errorMessage: string | undefined;
 }
 
 const initialState: IScheduleState = {
   diagnosis: {} as DiagnosisResponse,
   loadCreateDiagnosisStatus: ApiLoadingStatus.None,
   loadGetDiagnosisByScheduleIdStatus: ApiLoadingStatus.None,
+  errorMessage: undefined,
 };
 
 export const createDiagnosis = createAsyncThunkWrap(
@@ -49,6 +51,7 @@ export const diagnosisSlice = createSlice({
         state.loadCreateDiagnosisStatus = ApiLoadingStatus.Success;
       })
       .addCase(createDiagnosis.rejected, (state, action) => {
+        state.errorMessage = (<any>action.payload)?.message;
         state.loadCreateDiagnosisStatus = ApiLoadingStatus.Failed;
       })
       .addCase(getDiagnosisByScheduleId.pending, (state, action) => {
@@ -60,6 +63,7 @@ export const diagnosisSlice = createSlice({
       })
       .addCase(getDiagnosisByScheduleId.rejected, (state, action) => {
         state.diagnosis = {} as DiagnosisResponse;
+        state.errorMessage = (<any>action.payload)?.message;
         state.loadGetDiagnosisByScheduleIdStatus = ApiLoadingStatus.Failed;
       });
   },

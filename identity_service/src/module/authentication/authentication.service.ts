@@ -29,12 +29,12 @@ export class AuthenticationService {
   public async register(accountInfo: AccountRegisterModel) {
     const user = await this.accountRepository.getByEmail(accountInfo.email);
     if (user) {
-      throw new BadRequestException('Email is existed');
+      throw new BadRequestException('email is existed');
     }
     const accountData: CreateAccountModel = {
       email: accountInfo.email,
       password: await this.hashPassword(accountInfo.password),
-      role: accountInfo.role,
+      role: accountInfo.role_id,
     };
     const addAccount = await this.accountRepository.add(accountData);
 

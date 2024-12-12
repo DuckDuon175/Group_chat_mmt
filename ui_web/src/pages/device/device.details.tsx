@@ -15,6 +15,7 @@ import {
   convertDeviceTypeToString,
   convertDeviceStatusToString,
 } from "../../constants";
+import { showNotiError } from "../../components/notification";
 
 const DeviceDetailComponent = (props: any, ref: any) => {
   const dispatch = useAppDispatch();
@@ -59,6 +60,12 @@ const DeviceDetailComponent = (props: any, ref: any) => {
         start_date: convertTimeToDate(dataState.deviceData.start_date),
       };
       setData(rawData);
+    }
+    if (
+      dataState.loadGetDeviceByIdStatus === ApiLoadingStatus.Failed &&
+      dataState.errorMessage
+    ) {
+      showNotiError(dataState.errorMessage);
     }
   }, [dataState.loadGetDeviceByIdStatus]);
 

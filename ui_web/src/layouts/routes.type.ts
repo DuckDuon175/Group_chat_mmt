@@ -3,12 +3,14 @@ import { User } from "../pages/user";
 import { Device } from "../pages/device";
 import { Record } from "../pages/record";
 import { Schedule } from "../pages/schedule";
+import { ChatMes } from "../pages/chat";
 import {
   TeamOutlined,
   DesktopOutlined,
   LineChartOutlined,
   ScheduleOutlined,
   UserOutlined,
+  WechatWorkOutlined
 } from "@ant-design/icons";
 import { userRole } from "../constants";
 
@@ -56,9 +58,16 @@ export const adminRouterMappingGroup: { [key: string]: IRouteItem } = {
     component: Schedule,
     icon: ScheduleOutlined,
   },
+  Chat: {
+    key: "/chat",
+    url: "/chat",
+    label: "Tin nhắn",
+    component: ChatMes,
+    icon: WechatWorkOutlined
+  }
 };
 
-export const doctorRouterMappingGroup = {
+export const doctorRouterMappingGroup: { [key: string]: IRouteItem } = {
   User: {
     key: "/user",
     url: "/user",
@@ -87,9 +96,16 @@ export const doctorRouterMappingGroup = {
     component: Schedule,
     icon: ScheduleOutlined,
   },
+  Chat: {
+    key: "/chat",
+    url: "/chat",
+    label: "Tin nhắn",
+    component: ChatMes,
+    icon: WechatWorkOutlined
+  }
 };
 
-export const patientRouterMappingGroup = {
+export const patientRouterMappingGroup: { [key: string]: IRouteItem } = {
   DoctorInformation: {
     key: "/doctor",
     url: "/doctor",
@@ -111,6 +127,13 @@ export const patientRouterMappingGroup = {
     component: Schedule,
     icon: ScheduleOutlined,
   },
+  Chat: {
+    key: "/chat",
+    url: "/chat",
+    label: "Tin nhắn",
+    component: ChatMes,
+    icon: WechatWorkOutlined
+  }
 };
 
 export const getRoutesByRole = (role: string) => {

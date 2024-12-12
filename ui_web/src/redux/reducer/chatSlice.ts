@@ -1,0 +1,87 @@
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { ApiLoadingStatus } from '../../utils/loadingStatus';
+import { createAsyncThunkWrap } from '../handler';
+import { MessageSchema, MessageRequest, Service } from '../../api';
+
+interface IMessage {
+    user: string;
+    message: string;
+    timestamp: string; // Thời gian gửi tin nhắn
+    senderId: string;  // Thêm senderId cho chat cá nhân
+    receiverId?: string;  // Thêm receiverId (nếu là chat cá nhân)
+    groupChatId?: string;  // Thêm groupChatId cho chat nhóm
+}
+
+interface IChatState {
+    messages: MessageSchema[];
+    loadGetMessageStatus: ApiLoadingStatus;
+    loadSendMessageStatus: ApiLoadingStatus;
+    errorMessage: string | undefined;
+}
+
+const initialState: IChatState = {
+    messages: [],
+    loadGetMessageStatus: ApiLoadingStatus.None,
+    loadSendMessageStatus: ApiLoadingStatus.None,
+    errorMessage: undefined,
+};
+
+export const loadMessages = createAsyncThunkWrap(
+    "/chat/messages",
+    async (messageRequest: { receiverId: string, groupChatId: string }) => {
+        return await Service.chatService.loadMessages(messageRequest.receiverId, messageRequest.groupChatId)
+    }
+);
+
+export const sendMessage = createAsyncThunkWrap(
+    "/chat/send",
+    async (messageRequest: MessageRequest) => {
+        return await Service.chatService.sendMessage(messageRequest)
+    }
+);
+
+
+export const chatSlice = createSlice({
+    name: 'chat',
+    initialState,
+    reducers: {
+        resetGetMessageStatus: (state) => {
+            state.loadGetMessageStatus = ApiLoadingStatus.None;
+        },
+        resetSendMessageStatus: (state) => {
+            state.loadSendMessageStatus = ApiLoadingStatus.None;
+        }
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(loadMessages.pending, (state) => {
+                state.loadGetMessageStatus = ApiLoadingStatus.Loading;
+            })
+            .addCase(loadMessages.fulfilled, (state, action) => {
+                console.log(action)
+                state.messages = action.payload;
+                state.loadGetMessageStatus = ApiLoadingStatus.Success;
+            })
+            .addCase(loadMessages.rejected, (state, action) => {
+                state.errorMessage = (action.payload as any)?.message || "Unknown error";
+                state.loadGetMessageStatus = ApiLoadingStatus.Failed;
+            })
+            .addCase(sendMessage.pending, (state) => {
+                state.loadSendMessageStatus = ApiLoadingStatus.Loading;
+            })
+            .addCase(sendMessage.fulfilled, (state, action) => {
+                state.loadSendMessageStatus = ApiLoadingStatus.Success;
+            })
+            .addCase(sendMessage.rejected, (state, action) => {
+                state.errorMessage = (action.payload as any)?.message || "Unknown error";
+                state.loadSendMessageStatus = ApiLoadingStatus.Failed;
+            });
+    },
+});
+
+export const {
+    resetGetMessageStatus,
+    resetSendMessageStatus
+} = chatSlice.actions;
+
+export default chatSlice.reducer;

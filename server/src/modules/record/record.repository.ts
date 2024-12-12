@@ -3,6 +3,7 @@ import { InjectModel } from "@nestjs/sequelize";
 import { RecordModel } from "../../entities/record.model";
 import { RecordRequest } from "./dto/record.request";
 import { RecordResponse } from "./dto/record.response";
+const sequelize = require("../../config/sequelize");
 
 @Injectable()
 export class RecordRepository {
@@ -13,6 +14,13 @@ export class RecordRepository {
 
   async getAllRecord(): Promise<RecordResponse[]> {
     return await this.recordModel.findAll();
+  }
+
+  async countRecordsPerMonth() {
+    const [result, metadata] = await this.recordModel.sequelize.query(
+      "SELECT EXTRACT(MONTH FROM FROM_UNIXTIME(start_time)) AS month, COUNT(*) AS record_count FROM records GROUP BY month ORDER BY month"
+    );
+    return result;
   }
 
   async add(record: RecordRequest) {
@@ -59,7 +67,7 @@ export class RecordRepository {
         patient_id: patient_id,
       },
     });
-  } 
+  }
 
   async getRecordByDeviceId(device_id: string): Promise<RecordResponse[]> {
     return await this.recordModel.findAll({

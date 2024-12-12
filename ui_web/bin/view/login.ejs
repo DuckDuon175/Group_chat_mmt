@@ -432,18 +432,18 @@
                 <i class="bx bxs-gender"></i>
                 <label for="gender-label">Giới tính </label>
                 <select id="sign-up-gender">
-                  <option value="">Chọn giới tính</option>
-                  <option value="0">Nam</option>
-                  <option value="1">Nữ</option>
+                  <option value="3">Chọn giới tính</option>
+                  <option value="1">Nam</option>
+                  <option value="2">Nữ</option>
                 </select>
               </div>
               <div class="input-group">
                 <i class="bx bxs-role"></i>
                 <label for="role-label">Chức vụ </label>
                 <select id="sign-up-role" required>
-                  <option value="">Chọn chức vụ</option>
-                  <option value="1">Bác sĩ</option>
-                  <option value="2">Bệnh nhân</option>
+                  <option value="0">Chọn chức vụ</option>
+                  <option value="2">Bác sĩ</option>
+                  <option value="3">Bệnh nhân</option>
                 </select>
               </div>
               <div class="input-group">
@@ -717,31 +717,31 @@
       };
 
       //sign up
-      var registerUrl = `<%= registerurl %>`;
-      var signupUrl = "http://127.0.0.1:3000/api/auth/register";
-      var uploadImg = "http://127.0.0.1:3000/api/register/upload-img";
+      var signupUrl = `<%= registerurl %>`;
+      console.log(signupUrl);
+      //var uploadImg = "http://127.0.0.1:3000/api/register/upload-img";
       const signupFunction = async () => {
         const username = document.querySelector("#sign-up-username").value;
         const email = document.querySelector("#sign-up-email").value;
         const password = document.querySelector("#sign-up-password").value;
 
         const birthConvert = document.querySelector("#sign-up-birth").value;
-        const birth = Date.parse(birthConvert);
+        const birth = Date.parse(birthConvert) / 1000;
 
-        const role = document.querySelector("#sign-up-role").value;
+        const role_id = Number(document.querySelector("#sign-up-role").value);
         const confirmPassword =
           document.querySelector("#confirm-password").value;
         const phone_number = document.querySelector(
           "#sign-up-phone-number"
         ).value;
 
-        const gender = document.querySelector("#sign-up-gender").value;
+        const gender = Number(document.querySelector("#sign-up-gender").value);
         const information = document.querySelector("#sign-up-info").value;
 
-        const image = document.querySelector("#sign-up-img").files[0];
-        let upload = new FormData();
-        upload.append("file", image);
-        upload.append("email", email);
+        //const image = document.querySelector("#sign-up-img").files[0];
+        // let upload = new FormData();
+        // upload.append("file", image);
+        // upload.append("email", email);
         if (confirmPassword && confirmPassword === password) {
           try {
             const signupResult = await fetch(signupUrl, {
@@ -758,65 +758,74 @@
                 username: username,
                 email: email,
                 password: password,
-                role: role,
+                role_id: role_id,
                 gender: gender,
                 birth: birth,
                 phone_number: phone_number,
                 image: "",
-                status: 1,
+                status_id: 1,
                 information: information,
               }),
             });
+            console.log(signupResult);
             if (signupResult.ok) {
-              console.log(image);
-              if (image == undefined) {
-                window.alert("Sign up successful!");
-                window.location.reload();
-              }
-              if (
-                image != undefined &&
-                (image.type == "image/jpeg" || image.type == "image/png")
-              ) {
-                const uploadResult = await fetch(uploadImg, {
-                  method: "POST",
-                  mode: "cors",
-                  cache: "no-cache",
-                  credentials: "same-origin",
-                  redirect: "follow",
-                  referrerPolicy: "no-referrer",
-                  body: upload,
-                });
-                if (uploadResult.ok) {
-                  window.alert("Sign up successful!");
-                  window.location.reload();
-                } else {
-                  let data = await signupResult.json();
-                  console.log(data.message);
-                  window.alert(data.message);
-                }
-              }
-              if (
-                image != undefined &&
-                image.type != "image/jpeg" &&
-                image.type != "image/png"
-              ) {
-                window.alert("Wrong image format, please try again");
-              }
+              // console.log(image);
+              // if (image == undefined) {
+              //   window.alert("Sign up successful!");
+              //   window.location.reload();
+              // }
+              // if (
+              //   image != undefined &&
+              //   (image.type == "image/jpeg" || image.type == "image/png")
+              // ) {
+              //   const uploadResult = await fetch(uploadImg, {
+              //     method: "POST",
+              //     mode: "cors",
+              //     cache: "no-cache",
+              //     credentials: "same-origin",
+              //     redirect: "follow",
+              //     referrerPolicy: "no-referrer",
+              //     body: upload,
+              //   });
+              //   if (uploadResult.ok) {
+              //     window.alert("Sign up successful!");
+              //     window.location.reload();
+              //   } else {
+              //     let data = await signupResult.json();
+              //     console.log(data.message);
+              //     window.alert(data.message);
+              //   }
+              // }
+              //   if (
+              //     image != undefined &&
+              //     image.type != "image/jpeg" &&
+              //     image.type != "image/png"
+              //   ) {
+              //     window.alert("Wrong image format, please try again");
+              //   }
+              // } else {
+              // let data = await signupResult.json();
+              // window.alert(data.message);
+              window.alert("sign up successful!");
+              window.location.reload();
             } else {
               let data = await signupResult.json();
-              console.log(data.message);
-              window.alert(data.message);
+              if (Array.isArray(data.message)) {
+                for (const message of data.message) {
+                  window.alert(message);
+                }
+              } else window.alert(data.message);
             }
           } catch (err) {
             console.log(err);
-            window.alert("Error when sign up!");
+            window.alert("error when sign up!");
           }
         }
         if (!confirmPassword) {
-          window.alert('"Confirm password" is not allowed to be empty');
+          window.alert("confirm password should not be empty");
         }
         if (confirmPassword && confirmPassword !== password) {
-          window.alert("Confirm password is wrong, please try again");
+          window.alert("confirm password is wrong, please try again");
         }
       };
 

@@ -86,10 +86,20 @@ export class UserController {
     type: UserResponse,
     description: "Successful",
   })
-  async getUserById(@Res() res: Response, @Param("id") id: string) {
-    console.log(`[P]:::Get user by id: `, id);
+  async getUserById(
+    @Req() req: Request & { user?: UserGuardModel },
+    @Res() res: Response,
+    @Param("id") id: string
+  ) {
     try {
-      let user = await this.userService.getUserById(id);
+      let user_id;
+      if (id === "user-info") {
+        user_id = (
+          await this.userService.getUserByAccountId(req.user.accountId)
+        ).id;
+      } else user_id = id;
+      console.log(`[P]:::Get user by id: `, user_id);
+      const user = await this.userService.getUserById(user_id);
       if (!user) {
         throw new NotFoundException("No user found, please try again");
       }
@@ -98,32 +108,6 @@ export class UserController {
     } catch (error) {
       console.log(error);
       throw new InternalServerErrorException("Error when get user by id");
-    }
-  }
-
-  @Get("/account/:account_id")
-  @ApiResponse({
-    status: 200,
-    type: UserResponse,
-    description: "Successful",
-  })
-  async getUserByAccountId(
-    @Res() res: Response,
-    @Param("account_id") account_id: string
-  ) {
-    console.log(`[P]:::Get user by account id: `, account_id);
-    try {
-      let user = await this.userService.getUserByAccountId(account_id);
-      if (!user) {
-        throw new NotFoundException("No user found, please try again");
-      }
-      let result = plainToInstance(UserResponse, user);
-      return res.json(result);
-    } catch (error) {
-      console.log(error);
-      throw new InternalServerErrorException(
-        "Error when get user by account id"
-      );
     }
   }
 
@@ -147,6 +131,7 @@ export class UserController {
         throw new NotFoundException("No user found, please try again");
       }
       let result = plainToInstance(UserResponse, user);
+      console.log(result)
       return res.json(result);
     } catch (error) {
       console.log(error);

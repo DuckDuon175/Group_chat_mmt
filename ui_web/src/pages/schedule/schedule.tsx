@@ -7,12 +7,12 @@ import "dayjs/locale/vi";
 import viVN from "antd/lib/locale/vi_VN";
 import {
   createScheduleByDoctor,
-  createScheduleWithSelectedDoctor,
+  createScheduleByPatient,
   getAllSchedules,
   getScheduleByDoctorId,
   getScheduleByPatientId,
   resetLoadCreateScheduleByDoctorStatus,
-  resetLoadCreateScheduleWithSelectedDoctor,
+  resetLoadCreateScheduleByPatientStatus,
 } from "../../redux/reducer/scheduleSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hook";
 import { ApiLoadingStatus } from "../../utils/loadingStatus";
@@ -25,13 +25,19 @@ import {
   userRole,
 } from "../../constants";
 import { SelectInfo } from "antd/es/calendar/generateCalendar";
-import { createDiagnosis } from "../../redux/reducer/diagnosisSlice";
-import { DiagnosisRequest } from "../../api";
+import {
+  createDiagnosis,
+  resetLoadCreateDiagnosisStatus,
+} from "../../redux/reducer/diagnosisSlice";
+import { DiagnosisRequest, NotificationRequest } from "../../api";
 import { ModalShowDiagnosis } from "../../components/Modal/ModalShowDiagnosis";
 import { PlusOutlined } from "@ant-design/icons";
 import { ModalAddSchWithDoctor } from "../../components/Modal/ModalAddSchWithDoctor";
 import { ModalAddDiagnosis } from "../../components/Modal/ModalAddDiagnosis";
 import { Context } from "../../utils/context";
+import { ModalAddSchWithTime } from "../../components/Modal/ModalAddSchWithTime";
+import { showNotiError, showNotiSuccess } from "../../components/notification";
+import { createNotification } from "../../redux/reducer/notificationScheduleSlice";
 
 type AddSchedule = {
   open: (data: any[]) => void;
@@ -48,10 +54,12 @@ type ShowDiagnosis = {
 export const Schedule: React.FC = () => {
   const dispatch = useAppDispatch();
   const dataState = useAppSelector((state) => state.schedule);
+  const diagnosisState = useAppSelector((state) => state.diagnosis);
   const [isOpen, setIsOpen] = React.useState<boolean>(false);
   const [selectedDate, setSelectedDate] = React.useState<Dayjs | null>(null);
   const [data, setData] = React.useState<any[]>([]);
   const modalAddSchWithDoctorRef = React.useRef<AddSchedule>(null);
+  const modalAddSchWithTimeRef = React.useRef<AddSchedule>(null);
   const modalAddDiagnosisRef = React.useRef<AddDiagnosis>(null);
   const modalShowRef = React.useRef<ShowDiagnosis>(null);
 
@@ -97,6 +105,13 @@ export const Schedule: React.FC = () => {
       const rawData = dataState.data.map((schedule) => handleData(schedule));
       setData(rawData);
     }
+    if (
+      dataState.loadDataStatus === ApiLoadingStatus.Failed &&
+      dataState.errorMessage
+    ) {
+      setData([]);
+      showNotiError(dataState.errorMessage);
+    }
   }, [dataState.loadDataStatus]);
 
   const handleData = (data: any) => {
@@ -124,7 +139,7 @@ export const Schedule: React.FC = () => {
               item.year === value.year()
           )
           .map((schedule) => ({
-            type: schedule.status_id === 1 ? "error" : "success",
+            type: schedule.status_id,
             schedule_id: schedule.id,
             session_string: `Thời gian khám: Từ ${dayjs(
               schedule.schedule_start_time
@@ -142,7 +157,12 @@ export const Schedule: React.FC = () => {
             status: `Trạng thái lịch hẹn: ${convertScheduleStatusToString(
               schedule.status_id
             )}`,
+            doctor_id: schedule.doctor_id,
             patient_id: schedule.patient_id,
+            schedule_start_time: dayjs(
+              schedule.schedule_start_time,
+              "HH:mm MM/DD/YYYY"
+            ).unix(),
           }))
       : [];
     return result.sort((a, b) => a.time - b.time);
@@ -193,8 +213,13 @@ export const Schedule: React.FC = () => {
     }
   };
 
-  const handleSubmitAddSchWithDoctorFunction = (data: any) => {
-    dispatch(createScheduleWithSelectedDoctor(data));
+  const handleSubmitAddScheduleFunction = (data: any) => {
+    dispatch(createScheduleByPatient(data));
+    dispatch(
+      createNotification({
+        ...data,
+      } as NotificationRequest)
+    );
   };
 
   const handleSubmitAddDiagnosisFunction = (data: any) => {
@@ -207,28 +232,63 @@ export const Schedule: React.FC = () => {
     if (
       data.schedule_start_time !== null &&
       data.schedule_start_time !== undefined
-    )
+    ) {
       dispatch(createScheduleByDoctor(data));
+      dispatch(
+        createNotification({
+          ...data,
+        } as NotificationRequest)
+      );
+    }
   };
+
+  React.useEffect(() => {
+    if (diagnosisState.loadCreateDiagnosisStatus === ApiLoadingStatus.Success) {
+      dispatch(resetLoadCreateDiagnosisStatus());
+      showNotiSuccess("Bạn đã tạo chẩn đoán thành công");
+    }
+    if (
+      diagnosisState.loadCreateDiagnosisStatus === ApiLoadingStatus.Failed &&
+      dataState.errorMessage
+    ) {
+      dispatch(resetLoadCreateDiagnosisStatus());
+      showNotiError(dataState.errorMessage);
+    }
+  }, [diagnosisState.loadCreateDiagnosisStatus]);
 
   React.useEffect(() => {
     if (
       dataState.loadCreateScheduleByDoctorStatus === ApiLoadingStatus.Success
     ) {
+      showNotiSuccess("Bạn đã tạo lịch hẹn thành công");
       dispatch(resetLoadCreateScheduleByDoctorStatus());
-      dispatch(getAllSchedules());
+      dispatch(getScheduleByDoctorId());
+    }
+    if (
+      dataState.loadCreateScheduleByDoctorStatus === ApiLoadingStatus.Failed &&
+      dataState.errorMessage
+    ) {
+      showNotiError(dataState.errorMessage);
+      dispatch(resetLoadCreateScheduleByDoctorStatus());
     }
   }, [dataState.loadCreateScheduleByDoctorStatus]);
 
   React.useEffect(() => {
     if (
-      dataState.loadCreateScheduleWithSelectedDoctor ===
-      ApiLoadingStatus.Success
+      dataState.loadCreateScheduleByPatientStatus === ApiLoadingStatus.Success
     ) {
-      dispatch(resetLoadCreateScheduleWithSelectedDoctor());
-      dispatch(getAllSchedules());
+      showNotiSuccess("Bạn đã đặt lịch hẹn thành công");
+      dispatch(resetLoadCreateScheduleByPatientStatus());
+      dispatch(getScheduleByPatientId());
     }
-  }, [dataState.loadCreateScheduleWithSelectedDoctor]);
+    if (
+      dataState.loadCreateScheduleByPatientStatus === ApiLoadingStatus.Failed &&
+      dataState.errorMessage
+    ) {
+      showNotiError(dataState.errorMessage);
+      dispatch(resetLoadCreateScheduleByPatientStatus());
+    }
+  }, [dataState.loadCreateScheduleByPatientStatus]);
 
   return (
     <>
@@ -244,9 +304,9 @@ export const Schedule: React.FC = () => {
           </Button>
           <Button
             icon={<PlusOutlined />}
-            //onClick={() => modalAddSchWithTimeRef.current?.open({} as any)}
+            onClick={() => modalAddSchWithTimeRef.current?.open({} as any)}
           >
-            Đề xuất lịch khám
+            Đặt lịch khám theo thời gian
           </Button>{" "}
         </>
       )}
@@ -298,11 +358,14 @@ export const Schedule: React.FC = () => {
       </ConfigProvider>
       <ModalAddSchWithDoctor
         ref={modalAddSchWithDoctorRef}
-        title="Đặt lịch khám"
-        submitFunction={(data: any) =>
-          handleSubmitAddSchWithDoctorFunction(data)
-        }
+        title="Đặt lịch theo bác sĩ"
+        submitFunction={(data: any) => handleSubmitAddScheduleFunction(data)}
       ></ModalAddSchWithDoctor>
+      <ModalAddSchWithTime
+        ref={modalAddSchWithTimeRef}
+        title="Đặt lịch theo thời gian"
+        submitFunction={(data: any) => handleSubmitAddScheduleFunction(data)}
+      ></ModalAddSchWithTime>
       <ModalAddDiagnosis
         ref={modalAddDiagnosisRef}
         title="Chẩn đoán của bác sĩ"

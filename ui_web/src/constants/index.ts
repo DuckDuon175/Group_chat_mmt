@@ -201,9 +201,11 @@ export const convertScheduleStatusToString = (status: number) => {
     case 1:
       return "Được chấp nhận";
     case 2:
+      return "Chưa được chấp nhận";
+    case 3:
       return "Không được chấp nhận";
     default:
-      return "Đang chờ";
+      return "Không xác định";
   }
 };
 

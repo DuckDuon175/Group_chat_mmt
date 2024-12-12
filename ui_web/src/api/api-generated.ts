@@ -275,46 +275,6 @@ export class UserControllerClient {
     /**
      * @return Successful
      */
-    getUserByAccountId(account_id: string): Promise<UserResponse> {
-        let url_ = this.baseUrl + "/users/account/{account_id}";
-        if (account_id === undefined || account_id === null)
-            throw new Error("The parameter 'account_id' must be defined.");
-        url_ = url_.replace("{account_id}", encodeURIComponent("" + account_id));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetUserByAccountId(_response);
-        });
-    }
-
-    protected processGetUserByAccountId(response: Response): Promise<UserResponse> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = UserResponse.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<UserResponse>(null as any);
-    }
-
-    /**
-     * @return Successful
-     */
     getPatientByDoctorId(): Promise<UserResponse[]> {
         let url_ = this.baseUrl + "/users/data/patient-data";
         url_ = url_.replace(/[?&]$/, "");
@@ -587,47 +547,6 @@ export class ScheduleControllerClient {
     }
 
     /**
-     * @return Successful
-     */
-    deleteScheduleById(id: string): Promise<boolean> {
-        let url_ = this.baseUrl + "/schedules";
-        if (id === undefined || id === null)
-            throw new Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "DELETE",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processDeleteScheduleById(_response);
-        });
-    }
-
-    protected processDeleteScheduleById(response: Response): Promise<boolean> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result200 = resultData200 !== undefined ? resultData200 : <any>null;
-    
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<boolean>(null as any);
-    }
-
-    /**
      * @return successful
      */
     getScheduleByPatientId(): Promise<ScheduleResponse[]> {
@@ -716,6 +635,89 @@ export class ScheduleControllerClient {
     }
 
     /**
+     * @return Successful
+     */
+    acceptSchedule(body: AcceptScheduleRequest): Promise<boolean> {
+        let url_ = this.baseUrl + "/schedules/accept-schedule";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processAcceptSchedule(_response);
+        });
+    }
+
+    protected processAcceptSchedule(response: Response): Promise<boolean> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<boolean>(null as any);
+    }
+
+    /**
+     * @return Successful
+     */
+    deleteScheduleById(id: string): Promise<boolean> {
+        let url_ = this.baseUrl + "/schedules/reject-schedule/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteScheduleById(_response);
+        });
+    }
+
+    protected processDeleteScheduleById(response: Response): Promise<boolean> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<boolean>(null as any);
+    }
+
+    /**
      * @return Successfully
      */
     getAvailableScheduleByDoctorId(id: string): Promise<ScheduleResponse[]> {
@@ -765,7 +767,7 @@ export class ScheduleControllerClient {
     /**
      * @return Successfully
      */
-    createScheduleWithSelectedDoctor(body: ScheduleRequest): Promise<boolean> {
+    createScheduleByPatient(body: ScheduleRequest): Promise<boolean> {
         let url_ = this.baseUrl + "/schedules/create/doctor";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -781,20 +783,20 @@ export class ScheduleControllerClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processCreateScheduleWithSelectedDoctor(_response);
+            return this.processCreateScheduleByPatient(_response);
         });
     }
 
-    protected processCreateScheduleWithSelectedDoctor(response: Response): Promise<boolean> {
+    protected processCreateScheduleByPatient(response: Response): Promise<boolean> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
+        if (status === 201) {
             return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result201 = resultData201 !== undefined ? resultData201 : <any>null;
     
-            return result200;
+            return result201;
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
@@ -807,30 +809,40 @@ export class ScheduleControllerClient {
     /**
      * @return Successfully
      */
-    createScheduleByScheduleTime(): Promise<ScheduleResponse> {
-        let url_ = this.baseUrl + "/schedules/get/schedule";
+    getAvailableDoctorByScheduleTime(schedule_time: number): Promise<UserResponse[]> {
+        let url_ = this.baseUrl + "/schedules/time/available-doctor/{schedule_time}";
+        if (schedule_time === undefined || schedule_time === null)
+            throw new Error("The parameter 'schedule_time' must be defined.");
+        url_ = url_.replace("{schedule_time}", encodeURIComponent("" + schedule_time));
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
-            method: "POST",
+            method: "GET",
             headers: {
                 "Accept": "application/json"
             }
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processCreateScheduleByScheduleTime(_response);
+            return this.processGetAvailableDoctorByScheduleTime(_response);
         });
     }
 
-    protected processCreateScheduleByScheduleTime(response: Response): Promise<ScheduleResponse> {
+    protected processGetAvailableDoctorByScheduleTime(response: Response): Promise<UserResponse[]> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ScheduleResponse.fromJS(resultData200);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(UserResponse.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -838,7 +850,7 @@ export class ScheduleControllerClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<ScheduleResponse>(null as any);
+        return Promise.resolve<UserResponse[]>(null as any);
     }
 }
 
@@ -1784,6 +1796,387 @@ export class RecordControllerClient {
     }
 }
 
+export class NotificationControllerClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @return Successfully
+     */
+    getAllNotifications(): Promise<NotificationResponse[]> {
+        let url_ = this.baseUrl + "/notification";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetAllNotifications(_response);
+        });
+    }
+
+    protected processGetAllNotifications(response: Response): Promise<NotificationResponse[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(NotificationResponse.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<NotificationResponse[]>(null as any);
+    }
+
+    /**
+     * @return Successfully
+     */
+    createNotification(body: NotificationRequest): Promise<boolean> {
+        let url_ = this.baseUrl + "/notification";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateNotification(_response);
+        });
+    }
+
+    protected processCreateNotification(response: Response): Promise<boolean> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 201) {
+            return response.text().then((_responseText) => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result201 = resultData201 !== undefined ? resultData201 : <any>null;
+    
+            return result201;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<boolean>(null as any);
+    }
+
+    /**
+     * @return Successfully
+     */
+    getNotificationByUserId(): Promise<NotificationResponse[]> {
+        let url_ = this.baseUrl + "/notification/get";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetNotificationByUserId(_response);
+        });
+    }
+
+    protected processGetNotificationByUserId(response: Response): Promise<NotificationResponse[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(NotificationResponse.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<NotificationResponse[]>(null as any);
+    }
+
+    /**
+     * @return Successfully
+     */
+    updateSeenStatus(body: UpdateSeenStatusRequest): Promise<boolean> {
+        let url_ = this.baseUrl + "/notification/update-seen";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateSeenStatus(_response);
+        });
+    }
+
+    protected processUpdateSeenStatus(response: Response): Promise<boolean> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 201) {
+            return response.text().then((_responseText) => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result201 = resultData201 !== undefined ? resultData201 : <any>null;
+    
+            return result201;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<boolean>(null as any);
+    }
+
+    /**
+     * @return Successfully
+     */
+    deleteNotification(id: string): Promise<boolean> {
+        let url_ = this.baseUrl + "/notification/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteNotification(_response);
+        });
+    }
+
+    protected processDeleteNotification(response: Response): Promise<boolean> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 201) {
+            return response.text().then((_responseText) => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result201 = resultData201 !== undefined ? resultData201 : <any>null;
+    
+            return result201;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<boolean>(null as any);
+    }
+}
+
+export class StatisticControllerClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @return Successful
+     */
+    getStatistic(): Promise<StatisticResponse> {
+        let url_ = this.baseUrl + "/statistic";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetStatistic(_response);
+        });
+    }
+
+    protected processGetStatistic(response: Response): Promise<StatisticResponse> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = StatisticResponse.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<StatisticResponse>(null as any);
+    }
+}
+
+export class ChatControllerClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @return Successful
+     */
+    loadMessages(receiverId: string, groupChatId: string): Promise<MessageSchema[]> {
+        let url_ = this.baseUrl + "/chat/messages/{receiverId}/{groupChatId}";
+        if (receiverId === undefined || receiverId === null)
+            throw new Error("The parameter 'receiverId' must be defined.");
+        url_ = url_.replace("{receiverId}", encodeURIComponent("" + receiverId));
+        if (groupChatId === undefined || groupChatId === null)
+            throw new Error("The parameter 'groupChatId' must be defined.");
+        url_ = url_.replace("{groupChatId}", encodeURIComponent("" + groupChatId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processLoadMessages(_response);
+        });
+    }
+
+    protected processLoadMessages(response: Response): Promise<MessageSchema[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(MessageSchema.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<MessageSchema[]>(null as any);
+    }
+
+    /**
+     * @return Successful
+     */
+    sendMessage(body: MessageRequest): Promise<MessageSchema[]> {
+        let url_ = this.baseUrl + "/chat/send";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSendMessage(_response);
+        });
+    }
+
+    protected processSendMessage(response: Response): Promise<MessageSchema[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(MessageSchema.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<MessageSchema[]>(null as any);
+    }
+}
+
 export class UserResponse implements IUserResponse {
 
     [key: string]: any;
@@ -2058,6 +2451,56 @@ export interface IScheduleRequest {
     schedule_type_id: number;
     /** Status ID of the schedule */
     status_id: number;
+
+    [key: string]: any;
+}
+
+export class AcceptScheduleRequest implements IAcceptScheduleRequest {
+    /** Unique identifier for the schedule */
+    schedule_id!: string;
+
+    [key: string]: any;
+
+    constructor(data?: IAcceptScheduleRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.schedule_id = _data["schedule_id"];
+        }
+    }
+
+    static fromJS(data: any): AcceptScheduleRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new AcceptScheduleRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["schedule_id"] = this.schedule_id;
+        return data;
+    }
+}
+
+export interface IAcceptScheduleRequest {
+    /** Unique identifier for the schedule */
+    schedule_id: string;
 
     [key: string]: any;
 }
@@ -2521,6 +2964,318 @@ export class RecordResponse implements IRecordResponse {
 }
 
 export interface IRecordResponse {
+
+    [key: string]: any;
+}
+
+export class NotificationResponse implements INotificationResponse {
+
+    [key: string]: any;
+
+    constructor(data?: INotificationResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+        }
+    }
+
+    static fromJS(data: any): NotificationResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new NotificationResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        return data;
+    }
+}
+
+export interface INotificationResponse {
+
+    [key: string]: any;
+}
+
+export class NotificationRequest implements INotificationRequest {
+    /** The unique identifier for the schedule notification */
+    id!: string;
+    /** The unique identifier for the user with role doctor */
+    doctor_id!: string;
+    /** The unique identifier for the user with role patient */
+    patient_id!: string;
+    /** Start time of the schedule */
+    schedule_start_time!: number;
+    /** Check if the notification was seen before (true: seen, false: not seen) */
+    is_seen!: boolean;
+    /** Status of the schedule (1: accepted, 2:pending (if send to doctor) or successful follow-up schedule, 3: rejected) */
+    status!: number;
+    /** Type of the schedule (0: Send to Patient, 1: Send to Doctor) */
+    type!: number;
+
+    [key: string]: any;
+
+    constructor(data?: INotificationRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+            this.doctor_id = _data["doctor_id"];
+            this.patient_id = _data["patient_id"];
+            this.schedule_start_time = _data["schedule_start_time"];
+            this.is_seen = _data["is_seen"];
+            this.status = _data["status"];
+            this.type = _data["type"];
+        }
+    }
+
+    static fromJS(data: any): NotificationRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new NotificationRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        data["doctor_id"] = this.doctor_id;
+        data["patient_id"] = this.patient_id;
+        data["schedule_start_time"] = this.schedule_start_time;
+        data["is_seen"] = this.is_seen;
+        data["status"] = this.status;
+        data["type"] = this.type;
+        return data;
+    }
+}
+
+export interface INotificationRequest {
+    /** The unique identifier for the schedule notification */
+    id: string;
+    /** The unique identifier for the user with role doctor */
+    doctor_id: string;
+    /** The unique identifier for the user with role patient */
+    patient_id: string;
+    /** Start time of the schedule */
+    schedule_start_time: number;
+    /** Check if the notification was seen before (true: seen, false: not seen) */
+    is_seen: boolean;
+    /** Status of the schedule (1: accepted, 2:pending (if send to doctor) or successful follow-up schedule, 3: rejected) */
+    status: number;
+    /** Type of the schedule (0: Send to Patient, 1: Send to Doctor) */
+    type: number;
+
+    [key: string]: any;
+}
+
+export class UpdateSeenStatusRequest implements IUpdateSeenStatusRequest {
+    /** The unique identifier for the schedule notification */
+    id!: string;
+
+    [key: string]: any;
+
+    constructor(data?: IUpdateSeenStatusRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.id = _data["id"];
+        }
+    }
+
+    static fromJS(data: any): UpdateSeenStatusRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateSeenStatusRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["id"] = this.id;
+        return data;
+    }
+}
+
+export interface IUpdateSeenStatusRequest {
+    /** The unique identifier for the schedule notification */
+    id: string;
+
+    [key: string]: any;
+}
+
+export class StatisticResponse implements IStatisticResponse {
+
+    [key: string]: any;
+
+    constructor(data?: IStatisticResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+        }
+    }
+
+    static fromJS(data: any): StatisticResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new StatisticResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        return data;
+    }
+}
+
+export interface IStatisticResponse {
+
+    [key: string]: any;
+}
+
+export class MessageSchema implements IMessageSchema {
+
+    [key: string]: any;
+
+    constructor(data?: IMessageSchema) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+        }
+    }
+
+    static fromJS(data: any): MessageSchema {
+        data = typeof data === 'object' ? data : {};
+        let result = new MessageSchema();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        return data;
+    }
+}
+
+export interface IMessageSchema {
+
+    [key: string]: any;
+}
+
+export class MessageRequest implements IMessageRequest {
+
+    [key: string]: any;
+
+    constructor(data?: IMessageRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+        }
+    }
+
+    static fromJS(data: any): MessageRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new MessageRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        return data;
+    }
+}
+
+export interface IMessageRequest {
 
     [key: string]: any;
 }

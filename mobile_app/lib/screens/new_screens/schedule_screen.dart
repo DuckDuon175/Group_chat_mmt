@@ -1,5 +1,7 @@
+import 'package:bluetooth_ecg/screens/schedule_appointments_screens/schedule_appointments.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Import the intl package
+import 'package:intl/intl.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart'; // Import the intl package
 
 class ScheduleScreen extends StatefulWidget {
   const ScheduleScreen({super.key});
@@ -17,15 +19,34 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            title: const Text('My appointments',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                )),
-            centerTitle: true,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () {},
-            )),
+          title: const Text('My appointments',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              )),
+          centerTitle: true,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {},
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 16.0),
+              child: IconButton(
+                icon: PhosphorIcon(
+                  PhosphorIcons.regular.plus,
+                ),
+                onPressed: () {
+                  showModalBottomSheet(
+                      context: context,
+                      //isScrollControlled: true,
+                      builder: (BuildContext context) {
+                        return const ScheduleAppointmentScreen();
+                      });
+                },
+              ),
+            )
+          ],
+        ),
         body: SingleChildScrollView(
           child: Column(
             children: [
@@ -43,7 +64,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 ],
               ),
               const SizedBox(height: 18),
-              Container(
+              SizedBox(
                 height: 100,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
@@ -150,7 +171,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 children: [
                   const CircleAvatar(
                     radius: 50,
-                    backgroundImage: AssetImage('assets/images/images.jpeg'),
+                    backgroundImage:
+                        AssetImage('assets/images/doctor_image.png'),
                   ),
                   const SizedBox(
                     width: 12,

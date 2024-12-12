@@ -130,9 +130,9 @@ final class PersonalInfor extends StatelessWidget {
                   children: [
                     const Icon(
                       Icons
-                          .security, // Bạn có thể sử dụng biểu tượng gần giống nhất
+                          .security, 
                       size: 20,
-                      color: Colors.green, // Đặt màu xanh cho icon
+                      color: Colors.green,
                     ),
                     const Text('Bảo mật tuyệt đối mọi thông tin của bạn',
                         style: const TextStyle(

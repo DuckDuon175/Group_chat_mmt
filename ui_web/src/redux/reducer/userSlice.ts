@@ -1,7 +1,7 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { UserRequest, UserResponse } from "../../api/api-generated";
 import { ApiLoadingStatus } from "../../utils/loadingStatus";
-import { createAsyncThunkWrap } from "../handler";
+import { createAsyncThunkWrap, IExceptionModel } from "../handler";
 import { Service } from "../../api";
 
 interface IUserState {
@@ -12,9 +12,9 @@ interface IUserState {
   loadDataStatus: ApiLoadingStatus;
   loadDoctorDataStatus: ApiLoadingStatus;
   loadGetUserByIdStatus: ApiLoadingStatus;
-  loadGetUserByAccountIdStatus: ApiLoadingStatus;
   loadUpdateDataStatus: ApiLoadingStatus;
   loadDeleteDataStatus: ApiLoadingStatus;
+  errorMessage: string | undefined;
 }
 
 const initialState: IUserState = {
@@ -25,9 +25,9 @@ const initialState: IUserState = {
   loadDataStatus: ApiLoadingStatus.None,
   loadDoctorDataStatus: ApiLoadingStatus.None,
   loadGetUserByIdStatus: ApiLoadingStatus.None,
-  loadGetUserByAccountIdStatus: ApiLoadingStatus.None,
   loadUpdateDataStatus: ApiLoadingStatus.None,
   loadDeleteDataStatus: ApiLoadingStatus.None,
+  errorMessage: undefined,
 };
 
 export const getAllUsers = createAsyncThunkWrap("/users", async () => {
@@ -45,22 +45,15 @@ export const getUserById = createAsyncThunkWrap(
   }
 );
 
-export const getUserByAccountId = createAsyncThunkWrap(
-  "/users/account_id",
-  async (account_id: string) => {
-    return await Service.userService.getUserByAccountId(account_id);
-  }
-);
-
 export const getPatientByDoctorId = createAsyncThunkWrap(
-  "/users/doctor-id",
+  "/users/data/patient-data",
   async () => {
     return await Service.userService.getPatientByDoctorId();
   }
 );
 
 export const getDoctorByPatientId = createAsyncThunkWrap(
-  "/users/patient-id",
+  "/users/data/doctor-data",
   async () => {
     return await Service.userService.getDoctorByPatientId();
   }
@@ -89,9 +82,6 @@ export const userSlice = createSlice({
     resetLoadGetUserByIdStatus: (state) => {
       state.loadGetUserByIdStatus = ApiLoadingStatus.None;
     },
-    resetLoadGetUserByAccountIdStatus: (state) => {
-      state.loadGetUserByAccountIdStatus = ApiLoadingStatus.None;
-    },
     resetLoadUpdateDataStatus: (state) => {
       state.loadUpdateDataStatus = ApiLoadingStatus.None;
     },
@@ -110,6 +100,7 @@ export const userSlice = createSlice({
       })
       .addCase(getAllUsers.rejected, (state, action) => {
         state.data = [];
+        state.errorMessage = (<any>action.payload)?.message;
         state.loadDataStatus = ApiLoadingStatus.Failed;
       })
       .addCase(getAllDoctors.pending, (state, action) => {
@@ -121,6 +112,7 @@ export const userSlice = createSlice({
       })
       .addCase(getAllDoctors.rejected, (state, action) => {
         state.doctorData = [];
+        state.errorMessage = (<any>action.payload)?.message;
         state.loadDoctorDataStatus = ApiLoadingStatus.Failed;
       })
       .addCase(getPatientByDoctorId.pending, (state, action) => {
@@ -132,6 +124,7 @@ export const userSlice = createSlice({
       })
       .addCase(getPatientByDoctorId.rejected, (state, action) => {
         state.data = [];
+        state.errorMessage = (<any>action.payload)?.message;
         state.loadDataStatus = ApiLoadingStatus.Failed;
       })
       .addCase(getDoctorByPatientId.pending, (state, action) => {
@@ -143,6 +136,7 @@ export const userSlice = createSlice({
       })
       .addCase(getDoctorByPatientId.rejected, (state, action) => {
         state.data = [];
+        state.errorMessage = (<any>action.payload)?.message;
         state.loadDataStatus = ApiLoadingStatus.Failed;
       })
       .addCase(getUserById.pending, (state, action) => {
@@ -154,18 +148,8 @@ export const userSlice = createSlice({
       })
       .addCase(getUserById.rejected, (state, action) => {
         state.userData = {} as UserResponse;
+        state.errorMessage = (<any>action.payload)?.message;
         state.loadGetUserByIdStatus = ApiLoadingStatus.Failed;
-      })
-      .addCase(getUserByAccountId.pending, (state, action) => {
-        state.loadGetUserByAccountIdStatus = ApiLoadingStatus.Loading;
-      })
-      .addCase(getUserByAccountId.fulfilled, (state, action) => {
-        state.accountData = action.payload;
-        state.loadGetUserByAccountIdStatus = ApiLoadingStatus.Success;
-      })
-      .addCase(getUserByAccountId.rejected, (state, action) => {
-        state.accountData = {} as UserResponse;
-        state.loadGetUserByAccountIdStatus = ApiLoadingStatus.Failed;
       })
       .addCase(updateUserById.pending, (state, action) => {
         state.loadUpdateDataStatus = ApiLoadingStatus.Loading;
@@ -174,6 +158,7 @@ export const userSlice = createSlice({
         state.loadUpdateDataStatus = ApiLoadingStatus.Success;
       })
       .addCase(updateUserById.rejected, (state, action) => {
+        state.errorMessage = (<any>action.payload)?.message;
         state.loadUpdateDataStatus = ApiLoadingStatus.Failed;
       })
       .addCase(deleteUserById.pending, (state, action) => {
@@ -183,6 +168,7 @@ export const userSlice = createSlice({
         state.loadDeleteDataStatus = ApiLoadingStatus.Success;
       })
       .addCase(deleteUserById.rejected, (state, action) => {
+        state.errorMessage = (<any>action.payload)?.message;
         state.loadDeleteDataStatus = ApiLoadingStatus.Failed;
       });
   },
@@ -191,7 +177,6 @@ export const userSlice = createSlice({
 export const {
   resetLoadDataStatus,
   resetLoadGetUserByIdStatus,
-  resetLoadGetUserByAccountIdStatus,
   resetLoadUpdateDataStatus,
   resetLoadDeleteDataStatus,
 } = userSlice.actions;

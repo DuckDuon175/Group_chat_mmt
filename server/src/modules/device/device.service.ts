@@ -105,6 +105,10 @@ export class DeviceService {
     return await this.deviceRepository.getDeviceByDeviceName(name);
   }
 
+  async countDevicesPerMonth(): Promise<any[]> {
+    return await this.deviceRepository.countDevicesPerMonth();
+  }
+
   async deleteById(id: string) {
     return await this.deviceRepository.deleteById(id);
   }

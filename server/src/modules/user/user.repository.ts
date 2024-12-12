@@ -5,7 +5,7 @@ import { UserRequest } from "./dto/user.request";
 import { UserResponse } from "./dto/user.response";
 import { UserRoleModel } from "../../entities/user_role.model";
 import { UserStatusModel } from "../../entities/user_status.model";
-const { v4: uuidv4 } = require("uuid");
+const sequelize = require("../../config/sequelize");
 
 @Injectable()
 export class UserRepository {
@@ -26,6 +26,19 @@ export class UserRepository {
     return await this.userModel.findAll({
       where: { role_id: 2 },
     });
+  }
+
+  async countUsersPerMonth(): Promise<any> {
+    const [doctors] = await this.userModel.sequelize.query(
+      "SELECT EXTRACT(MONTH FROM createdAt) AS month, COUNT(*) AS doctor_count FROM users WHERE role_id = 2 GROUP BY month ORDER BY month"
+    );
+    const [patients] = await this.userModel.sequelize.query(
+      "SELECT EXTRACT(MONTH FROM createdAt) AS month, COUNT(*) AS patient_count FROM users WHERE role_id = 3 GROUP BY month ORDER BY month"
+    );
+    return {
+      doctor_array: doctors,
+      patient_array: patients,
+    };
   }
 
   async add(user: UserRequest) {

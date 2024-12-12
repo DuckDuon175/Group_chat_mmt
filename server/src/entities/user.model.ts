@@ -17,6 +17,7 @@ import { ScheduleModel } from "./schedule.model";
 import { ConsultationScheduleModel } from "./consultation_schedule.model";
 import { RecordModel } from "./record.model";
 import { v4 as uuidv4 } from "uuid";
+import { NotificationScheduleModel } from "./notification_schedule.model";
 
 @Table({ tableName: "users" })
 export class UserModel extends Model<UserModel> {
@@ -111,4 +112,7 @@ export class UserModel extends Model<UserModel> {
 
   @HasMany(() => ConsultationScheduleModel)
   consultation_schedules: ConsultationScheduleModel[];
+
+  @HasMany(() => NotificationScheduleModel)
+  notification_schedules: NotificationScheduleModel[];
 }

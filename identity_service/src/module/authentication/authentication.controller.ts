@@ -26,11 +26,8 @@ export class AuthenticationController {
   constructor(private readonly authService: AuthenticationService) {}
   @Post('register')
   async register(@Body() register: AccountRegisterModel, @Res() res: Response) {
-    const user = await this.authService.register(register);
-    if (!user) {
-      throw new NotFoundException('Register failed');
-    }
-    return res.status(HttpStatus.OK).json('register successfully');
+    await this.authService.register(register);
+    return res.status(HttpStatus.CREATED).json('register successfully');
   }
   @Post('login')
   async login(@Body() login: LoginRequest, @Res() res: Response) {

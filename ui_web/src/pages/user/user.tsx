@@ -29,6 +29,7 @@ import {
 } from "../../constants";
 import dayjs from "dayjs";
 import { Context } from "../../utils/context";
+import { showNotiError, showNotiSuccess } from "../../components/notification";
 
 type UserDetailType = {
   open: (id: string) => void;
@@ -146,19 +147,41 @@ export const User: React.FC = () => {
       const data = rawData.map((element) => handleData(element, "render"));
       setDataTable(data);
     }
+    if (
+      dataState.loadDataStatus === ApiLoadingStatus.Failed &&
+      dataState.errorMessage
+    ) {
+      showNotiError(dataState.errorMessage);
+    }
   }, [dataState.loadDataStatus]);
 
   React.useEffect(() => {
     if (dataState.loadUpdateDataStatus === ApiLoadingStatus.Success) {
+      showNotiSuccess("Bạn đã sửa thông tin người dùng thành công");
       dispatch(resetLoadUpdateDataStatus());
       dispatch(getAllUsers());
+    }
+    if (
+      dataState.loadUpdateDataStatus === ApiLoadingStatus.Failed &&
+      dataState.errorMessage
+    ) {
+      showNotiError(dataState.errorMessage);
+      dispatch(resetLoadUpdateDataStatus());
     }
   }, [dataState.loadUpdateDataStatus]);
 
   React.useEffect(() => {
     if (dataState.loadDeleteDataStatus === ApiLoadingStatus.Success) {
+      showNotiSuccess("Bạn đã xóa người dùng thành công");
       dispatch(resetLoadDeleteDataStatus());
       dispatch(getAllUsers());
+    }
+    if (
+      dataState.loadDeleteDataStatus === ApiLoadingStatus.Failed &&
+      dataState.errorMessage
+    ) {
+      showNotiError(dataState.errorMessage);
+      dispatch(resetLoadDeleteDataStatus());
     }
   }, [dataState.loadDeleteDataStatus]);
 

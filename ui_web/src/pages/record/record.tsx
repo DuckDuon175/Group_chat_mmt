@@ -18,6 +18,7 @@ import { findElementById } from "../../utils/arrayUtils";
 import dayjs from "dayjs";
 import { Context } from "../../utils/context";
 import { userRole } from "../../constants";
+import { showNotiError, showNotiSuccess } from "../../components/notification";
 
 type RecordDetailType = {
   open: (id: string) => void;
@@ -45,10 +46,19 @@ export const Record: React.FC = () => {
     },
     {
       title: "Tên bệnh nhân",
-      dataIndex: "username",
-      key: "username",
+      dataIndex: "patient",
+      key: "patient",
       type: "text",
       isEdit: false,
+      hidden: Context.role === userRole.patient,
+    },
+    {
+      title: "Tên bác sĩ",
+      dataIndex: "doctor",
+      key: "doctor",
+      type: "text",
+      isEdit: false,
+      hidden: Context.role === userRole.doctor,
     },
     {
       title: "Tên thiết bị",
@@ -129,19 +139,41 @@ export const Record: React.FC = () => {
       );
       setDataTable(rawData);
     }
+    if (
+      dataState.loadDataStatus === ApiLoadingStatus.Failed &&
+      dataState.errorMessage
+    ) {
+      showNotiError(dataState.errorMessage);
+    }
   }, [dataState.loadDataStatus]);
 
   React.useEffect(() => {
     if (dataState.loadUpdateDataStatus === ApiLoadingStatus.Success) {
       dispatch(resetLoadUpdateDataStatus());
-      dispatch(getAllRecord());
+      dispatch(getRecordByDoctorId());
+      showNotiSuccess("Bạn đã sửa bản ghi thành công");
+    }
+    if (
+      dataState.loadUpdateDataStatus === ApiLoadingStatus.Failed &&
+      dataState.errorMessage
+    ) {
+      showNotiError(dataState.errorMessage);
+      dispatch(resetLoadUpdateDataStatus());
     }
   }, [dataState.loadUpdateDataStatus]);
 
   React.useEffect(() => {
     if (dataState.loadDeleteDataStatus === ApiLoadingStatus.Success) {
       dispatch(resetLoadDeleteDataStatus());
-      dispatch(getAllRecord());
+      dispatch(getRecordByDoctorId());
+      showNotiSuccess("Bạn đã xoá bản ghi thành công");
+    }
+    if (
+      dataState.loadDeleteDataStatus === ApiLoadingStatus.Failed &&
+      dataState.errorMessage
+    ) {
+      showNotiError(dataState.errorMessage);
+      dispatch(resetLoadDeleteDataStatus());
     }
   }, [dataState.loadDeleteDataStatus]);
 

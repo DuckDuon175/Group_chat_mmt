@@ -1,0 +1,36 @@
+.ant-card {
+  border-radius: 8px;
+}
+
+.ant-list-item:hover {
+  background-color: #f0f0f0 !important;
+}
+
+.ant-list-item-meta-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ant-card-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #000;
+}
+
+div[style*="overflow-y: auto"] {
+  scrollbar-width: thin;
+}
+
+div[style*="overflow-y: auto"]::-webkit-scrollbar {
+  width: 6px;
+}
+
+div[style*="overflow-y: auto"]::-webkit-scrollbar-thumb {
+  background: #bfbfbf;
+  border-radius: 4px;
+}
+
+div[style*="overflow-y: auto"]::-webkit-scrollbar-thumb:hover {
+  background: #8c8c8c;
+}

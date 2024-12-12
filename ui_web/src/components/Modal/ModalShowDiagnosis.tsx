@@ -27,7 +27,6 @@ const ModalComponent = (props: any, ref: any) => {
     open: (data: any) => {
       setIsOpen(true);
       setData(data);
-      console.log(data);
     },
   }));
 
@@ -43,11 +42,6 @@ const ModalComponent = (props: any, ref: any) => {
       dispatch(resetLoadGetDiagnosisByScheduleIdStatus());
       setDiagnosis(diagnosisState.diagnosis);
     }
-    if (
-      diagnosisState.loadGetDiagnosisByScheduleIdStatus ===
-      ApiLoadingStatus.Failed
-    )
-      setDiagnosis({} as DiagnosisResponse);
   }, [diagnosisState.loadGetDiagnosisByScheduleIdStatus]);
 
   return (

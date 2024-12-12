@@ -25,6 +25,7 @@ import {
   getBusyHours,
 } from "../../utils/dateUtils";
 import { scheduleType } from "../../constants";
+import { showNotiError } from "../notification";
 
 const ModalComponent = (props: any, ref: any) => {
   const [form] = Form.useForm();
@@ -78,6 +79,15 @@ const ModalComponent = (props: any, ref: any) => {
       dispatch(resetLoadGetAvailableScheduleByDoctorId());
       setAvailableSchedule(scheduleState.availableSchedule);
     }
+    if (
+      scheduleState.loadGetAvailableScheduleByDoctorId ===
+        ApiLoadingStatus.Failed &&
+      scheduleState.errorMessage
+    ) {
+      showNotiError(scheduleState.errorMessage);
+      dispatch(resetLoadGetAvailableScheduleByDoctorId());
+      setAvailableSchedule([]);
+    }
   }, [scheduleState.loadGetAvailableScheduleByDoctorId]);
 
   React.useImperativeHandle(ref, () => ({
@@ -91,6 +101,13 @@ const ModalComponent = (props: any, ref: any) => {
 
   React.useEffect(() => {
     if (doctorState.loadDoctorDataStatus === ApiLoadingStatus.Success) {
+      setDoctorDropDown(doctorState.doctorData);
+    }
+    if (
+      doctorState.loadDoctorDataStatus === ApiLoadingStatus.Failed &&
+      doctorState.errorMessage
+    ) {
+      showNotiError(doctorState.errorMessage);
       setDoctorDropDown(doctorState.doctorData);
     }
   }, [doctorState.loadDoctorDataStatus]);

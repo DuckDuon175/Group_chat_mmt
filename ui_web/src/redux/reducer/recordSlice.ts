@@ -11,6 +11,7 @@ interface IRecordState {
   loadGetRecordByIdStatus: ApiLoadingStatus;
   loadUpdateDataStatus: ApiLoadingStatus;
   loadDeleteDataStatus: ApiLoadingStatus;
+  errorMessage: string | undefined;
 }
 
 const initialState: IRecordState = {
@@ -20,6 +21,7 @@ const initialState: IRecordState = {
   loadGetRecordByIdStatus: ApiLoadingStatus.None,
   loadUpdateDataStatus: ApiLoadingStatus.None,
   loadDeleteDataStatus: ApiLoadingStatus.None,
+  errorMessage: undefined,
 };
 
 export const getAllRecord = createAsyncThunkWrap("/records", async () => {
@@ -89,6 +91,7 @@ export const recordSlice = createSlice({
       })
       .addCase(getAllRecord.rejected, (state, action) => {
         state.data = [];
+        state.errorMessage = (<any>action.payload)?.message;
         state.loadDataStatus = ApiLoadingStatus.Failed;
       })
       .addCase(getRecordByDoctorId.pending, (state, action) => {
@@ -100,6 +103,7 @@ export const recordSlice = createSlice({
       })
       .addCase(getRecordByDoctorId.rejected, (state, action) => {
         state.data = [];
+        state.errorMessage = (<any>action.payload)?.message;
         state.loadDataStatus = ApiLoadingStatus.Failed;
       })
       .addCase(getRecordByPatientId.pending, (state, action) => {
@@ -111,6 +115,7 @@ export const recordSlice = createSlice({
       })
       .addCase(getRecordByPatientId.rejected, (state, action) => {
         state.data = [];
+        state.errorMessage = (<any>action.payload)?.message;
         state.loadDataStatus = ApiLoadingStatus.Failed;
       })
       .addCase(getRecordById.pending, (state, action) => {
@@ -122,6 +127,7 @@ export const recordSlice = createSlice({
       })
       .addCase(getRecordById.rejected, (state, action) => {
         state.recordData = {} as RecordResponse;
+        state.errorMessage = (<any>action.payload)?.message;
         state.loadGetRecordByIdStatus = ApiLoadingStatus.Failed;
       })
       .addCase(updateRecordById.pending, (state, action) => {
@@ -131,6 +137,7 @@ export const recordSlice = createSlice({
         state.loadUpdateDataStatus = ApiLoadingStatus.Success;
       })
       .addCase(updateRecordById.rejected, (state, action) => {
+        state.errorMessage = (<any>action.payload)?.message;
         state.loadUpdateDataStatus = ApiLoadingStatus.Failed;
       })
       .addCase(deleteRecordById.pending, (state, action) => {
@@ -140,6 +147,7 @@ export const recordSlice = createSlice({
         state.loadDeleteDataStatus = ApiLoadingStatus.Success;
       })
       .addCase(deleteRecordById.rejected, (state, action) => {
+        state.errorMessage = (<any>action.payload)?.message;
         state.loadDeleteDataStatus = ApiLoadingStatus.Failed;
       });
   },

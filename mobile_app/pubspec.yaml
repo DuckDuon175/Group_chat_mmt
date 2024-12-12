@@ -78,6 +78,8 @@ dependencies:
   connectivity_plus: ^6.0.3
   dart_openai: ^5.1.0
 
+  table_calendar: ^3.0.6
+
 dependency_overrides:
   ffi: 2.0.1
   # intl: ^0.18.0

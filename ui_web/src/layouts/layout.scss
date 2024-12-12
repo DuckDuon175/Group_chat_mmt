@@ -10,6 +10,14 @@
     max-height: 85vh;
     overflow-y: scroll;
     margin-top: 20px;
+
+    &:has(.chat-container){
+        overflow: hidden;
+        .content{
+            width: 100%;
+            display: flex;
+        }
+    }
 }
 
 .children-content::-webkit-scrollbar {

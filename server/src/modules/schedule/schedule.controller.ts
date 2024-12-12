@@ -21,6 +21,7 @@ import { plainToInstance } from "class-transformer";
 import { UserService } from "../user/user.service";
 import { UserResponse } from "../user/dto/user.response";
 import { UserGuardModel } from "../authentication/dto/user.guard.model";
+import { AcceptScheduleRequest } from "./dto/acceptSchedule.request";
 
 @Controller("schedules")
 export class ScheduleController {
@@ -38,7 +39,7 @@ export class ScheduleController {
     description: "successful",
   })
   async getAllSchedules(@Res() res: Response) {
-    console.log(`[P]:::Get all schedule data`);
+    console.log("[P]:::Get all schedule data");
     try {
       let schedules = await this.scheduleService.getAllSchedules();
       if (!schedules.length) {
@@ -60,12 +61,12 @@ export class ScheduleController {
   })
   async getScheduleByPatientId(
     @Req() req: Request & { user?: UserGuardModel },
-    @Res() res: Response,
+    @Res() res: Response
   ) {
     const patientId = (
       await this.userService.getUserByAccountId(req.user.accountId)
     ).id;
-    console.log(`[P]:::Get schedule by patient id`, patientId);
+    console.log("[P]:::Get schedule by patient id", patientId);
     let checkExistPatient = await this.userService.getUserById(patientId);
     if (checkExistPatient == null) {
       throw new NotFoundException("No patient found, please try again");
@@ -95,12 +96,12 @@ export class ScheduleController {
   })
   async getScheduleByDoctorId(
     @Req() req: Request & { user?: UserGuardModel },
-    @Res() res: Response,
+    @Res() res: Response
   ) {
     const doctorId = (
       await this.userService.getUserByAccountId(req.user.accountId)
     ).id;
-    console.log(`[P]:::Get schedule by doctor_id id`, doctorId);
+    console.log("[P]:::Get schedule by doctor id", doctorId);
     let checkExistDoctor = await this.userService.getUserById(doctorId);
     if (checkExistDoctor == null) {
       throw new NotFoundException("No doctor found, please try again");
@@ -133,7 +134,7 @@ export class ScheduleController {
     @Body() schedule: ScheduleRequest,
     @Res() res: Response
   ) {
-    console.log(`[P]:::Create schedule data`, schedule);
+    console.log("[P]:::Create schedule data", schedule);
     try {
       const doctor = await this.userService.getUserByAccountId(
         req.user.accountId
@@ -148,6 +149,28 @@ export class ScheduleController {
     }
   }
 
+  @Put("accept-schedule")
+  @ApiResponse({
+    status: 200,
+    type: Boolean,
+    description: "Successful",
+  })
+  async acceptSchedule(
+    @Body() schedule: AcceptScheduleRequest,
+    @Res() res: Response
+  ) {
+    console.log("[P]:::Accept schedule by id", schedule.schedule_id);
+    try {
+      await this.scheduleService.acceptSchedule(schedule.schedule_id);
+      return res.json({
+        message: "Schedule accepted successfully",
+      });
+    } catch (error) {
+      console.log(error);
+      throw new InternalServerErrorException("Error when accept schedule");
+    }
+  }
+
   @Put("")
   @ApiResponse({
     status: 200,
@@ -158,7 +181,7 @@ export class ScheduleController {
     @Body() schedule: ScheduleRequest,
     @Res() res: Response
   ) {
-    console.log(`[P]:::Update schedule by id`, schedule.id);
+    console.log("[P]:::Update schedule by id", schedule.id);
     let checkExistSchedule = await this.scheduleService.getScheduleById(
       schedule.id
     );
@@ -178,28 +201,21 @@ export class ScheduleController {
     }
   }
 
-  @Delete()
+  @Delete("reject-schedule/:id")
   @ApiResponse({
     status: 200,
     type: Boolean,
     description: "Successful",
   })
   async deleteScheduleById(@Res() res: Response, @Param("id") id: string) {
-    console.log(`[P]:::Delete schedule by id`, id);
-    let checkExistSchedule = await this.scheduleService.getScheduleById(id);
-    if (checkExistSchedule == null) {
-      22;
-      throw new NotFoundException(
-        "No schedule found to delete, please try again"
-      );
-    }
+    console.log("[P]:::Reject schedule:", id);
     try {
       await this.scheduleService.deleteScheduleById(id);
       return res.json({
-        message: "Schedule has been deleted successfully",
+        message: "Schedule has been rejected successfully",
       });
     } catch (error) {
-      throw new InternalServerErrorException("Error when delete schedule");
+      throw new InternalServerErrorException("Error when reject schedule");
     }
   }
 
@@ -214,7 +230,7 @@ export class ScheduleController {
     @Res() res: Response,
     @Param("id") id: string
   ) {
-    console.log(`[P]::: Get available schedules of doctor by doctor id`, id);
+    console.log("[P]::: Get available schedules of doctor by doctor id", id);
     const timestamp = Math.floor(new Date().getTime() / 1000);
 
     try {
@@ -244,31 +260,22 @@ export class ScheduleController {
 
   @Post("/create/doctor")
   @ApiResponse({
-    status: 200,
+    status: 201,
     type: Boolean,
     description: "Successfully",
   })
-  async createScheduleWithSelectedDoctor(
+  async createScheduleByPatient(
     @Req() req: Request & { user?: UserGuardModel },
     @Body() schedule: ScheduleRequest,
     @Res() res: Response
   ) {
-    const { doctor_id } = schedule;
-    const patient = await this.userService.getUserByAccountId(
-      req.user.accountId
-    );
-    console.log(
-      `[P]:::Create schedule with selected doctor`,
-      schedule,
-      doctor_id
-    );
+    console.log("[P]:::Create schedule by patient:", schedule);
     try {
-      const doctor = await this.userService.getUserById(doctor_id);
-      if (!doctor)
-        return res.json({
-          message: "Doctor not found",
-        });
+      const { doctor_id } = schedule;
       schedule.status_id = 2;
+      const patient = await this.userService.getUserByAccountId(
+        req.user.accountId
+      );
       schedule.patient_id = patient.id;
       await this.scheduleService.createSchedule(schedule, doctor_id);
       return res.json({
@@ -282,32 +289,28 @@ export class ScheduleController {
     }
   }
 
-  @Post("get/schedule")
+  @Get("time/available-doctor/:schedule_time")
   @ApiResponse({
     status: 200,
-    type: ScheduleResponse,
+    type: [UserResponse],
     description: "Successfully",
   })
-  async createScheduleByScheduleTime(
-    @Body() schedule: any,
-    @Res() res: Response
+  async getAvailableDoctorByScheduleTime(
+    @Res() res: Response,
+    @Param("schedule_time") schedule_time: number
   ) {
-    console.log(`[P]:::Create schedule by schedule time`, schedule);
+    console.log("[P]:::Get available doctor by schedule time", schedule_time);
     try {
       const scheduleList = await this.scheduleService.getScheduleByStartTime(
-        schedule?.startTime
+        schedule_time
       );
-      const doctorArray = await this.userService.getDoctorAvailableWithSchedule(
-        scheduleList
-      );
-      let result = plainToInstance(UserResponse, doctorArray);
-      return res.json({
-        result,
-      });
+      const doctorArray =
+        await this.userService.getAvailableDoctorByScheduleTime(scheduleList);
+      return res.json(doctorArray);
     } catch (e) {
       console.log(e);
       throw new InternalServerErrorException(
-        "Error when create schedule by doctor with time"
+        "Error when get available doctor by schedule time"
       );
     }
   }

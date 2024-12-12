@@ -10,8 +10,11 @@ import {
   convertGenderToString,
   convertRoleToString,
   convertUserStatusToString,
+  userRole,
 } from "../../constants";
 import { convertTimeToDate } from "../../utils/dateUtils";
+import { showNotiError } from "../../components/notification";
+import { Context } from "../../utils/context";
 
 const UserDetailComponent = (props: any, ref: any) => {
   const dispatch = useAppDispatch();
@@ -42,15 +45,19 @@ const UserDetailComponent = (props: any, ref: any) => {
       };
       setData(rawData);
     }
+    if (
+      dataState.loadGetUserByIdStatus === ApiLoadingStatus.Failed &&
+      dataState.errorMessage
+    ) {
+      showNotiError(dataState.errorMessage);
+    }
   }, [dataState.loadGetUserByIdStatus]);
 
   const labelsInfo = {
-    username: "Tên người dùng",
+    username: Context.role === userRole.doctor ? "Tên bệnh nhân" : "Tên bác sĩ",
     gender: "Giới tính",
     birth: "Ngày sinh",
     phone_number: "Số điện thoại",
-    role_id: "Chức vụ",
-    information: "Thông tin",
     status_id: "Trạng thái",
   };
 
@@ -58,7 +65,9 @@ const UserDetailComponent = (props: any, ref: any) => {
     <>
       <Avatar size={60} icon={<UserOutlined />} />
       <p className="site-description-item-profile-p">Thông tin cụ thể</p>
-      <p className="site-description-item-profile-wrapper"></p>
+      <p className="site-description-item-profile-wrapper">
+        {data.information}
+      </p>
       <Divider />
     </>
   );
@@ -66,7 +75,10 @@ const UserDetailComponent = (props: any, ref: any) => {
   return (
     <>
       <DrawerSide
-        closed={() => setIsOpen(false)}
+        closed={() => {
+          setIsOpen(false);
+          setData([]);
+        }}
         isOpen={isOpen}
         title="Thông tin người dùng"
         data={data}

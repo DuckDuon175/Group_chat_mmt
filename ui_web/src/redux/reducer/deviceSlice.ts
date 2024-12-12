@@ -18,6 +18,7 @@ interface IDeviceState {
   loadUpdateDataStatus: ApiLoadingStatus;
   loadDeleteDataStatus: ApiLoadingStatus;
   loadDeleteDetailDataStatus: ApiLoadingStatus;
+  errorMessage: string | undefined;
 }
 
 const initialState: IDeviceState = {
@@ -30,6 +31,7 @@ const initialState: IDeviceState = {
   loadUpdateDataStatus: ApiLoadingStatus.None,
   loadDeleteDataStatus: ApiLoadingStatus.None,
   loadDeleteDetailDataStatus: ApiLoadingStatus.None,
+  errorMessage: undefined,
 };
 
 export const getAllDevices = createAsyncThunkWrap("/devices", async () => {
@@ -129,6 +131,7 @@ export const deviceSlice = createSlice({
       })
       .addCase(getAllDevices.rejected, (state, action) => {
         state.deviceData = {} as DeviceResponse;
+        state.errorMessage = (<any>action.payload)?.message;
         state.loadDataStatus = ApiLoadingStatus.Failed;
       })
       .addCase(getDeviceByDoctorId.pending, (state, action) => {
@@ -140,6 +143,7 @@ export const deviceSlice = createSlice({
       })
       .addCase(getDeviceByDoctorId.rejected, (state, action) => {
         state.deviceData = {} as DeviceResponse;
+        state.errorMessage = (<any>action.payload)?.message;
         state.loadDataStatus = ApiLoadingStatus.Failed;
       })
       .addCase(getDeviceById.pending, (state, action) => {
@@ -150,6 +154,7 @@ export const deviceSlice = createSlice({
         state.loadGetDeviceByIdStatus = ApiLoadingStatus.Success;
       })
       .addCase(getDeviceById.rejected, (state, action) => {
+        state.errorMessage = (<any>action.payload)?.message;
         state.loadGetDeviceByIdStatus = ApiLoadingStatus.Failed;
       })
       .addCase(addDevice.pending, (state, action) => {
@@ -159,6 +164,7 @@ export const deviceSlice = createSlice({
         state.loadAddDataStatus = ApiLoadingStatus.Success;
       })
       .addCase(addDevice.rejected, (state, action) => {
+        state.errorMessage = (<any>action.payload).message;
         state.loadAddDataStatus = ApiLoadingStatus.Failed;
       })
       .addCase(addDeviceDetail.pending, (state, action) => {
@@ -168,6 +174,7 @@ export const deviceSlice = createSlice({
         state.loadAddDetailDataStatus = ApiLoadingStatus.Success;
       })
       .addCase(addDeviceDetail.rejected, (state, action) => {
+        state.errorMessage = (<any>action.payload).message;
         state.loadAddDetailDataStatus = ApiLoadingStatus.Failed;
       })
       .addCase(updateDeviceById.pending, (state, action) => {
@@ -177,6 +184,7 @@ export const deviceSlice = createSlice({
         state.loadUpdateDataStatus = ApiLoadingStatus.Success;
       })
       .addCase(updateDeviceById.rejected, (state, action) => {
+        state.errorMessage = (<any>action.payload).message;
         state.loadUpdateDataStatus = ApiLoadingStatus.Failed;
       })
       .addCase(deleteDeviceById.pending, (state, action) => {
@@ -186,6 +194,7 @@ export const deviceSlice = createSlice({
         state.loadDeleteDataStatus = ApiLoadingStatus.Success;
       })
       .addCase(deleteDeviceById.rejected, (state, action) => {
+        state.errorMessage = (<any>action.payload).message;
         state.loadDeleteDataStatus = ApiLoadingStatus.Failed;
       })
       .addCase(deleteDeviceDetailById.pending, (state, action) => {
@@ -195,6 +204,7 @@ export const deviceSlice = createSlice({
         state.loadDeleteDetailDataStatus = ApiLoadingStatus.Success;
       })
       .addCase(deleteDeviceDetailById.rejected, (state, action) => {
+        state.errorMessage = (<any>action.payload).message;
         state.loadDeleteDetailDataStatus = ApiLoadingStatus.Failed;
       });
   },

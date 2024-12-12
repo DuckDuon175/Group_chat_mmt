@@ -15,6 +15,7 @@ import {
   addDeviceDetail,
   updateDeviceDetailById,
   getDeviceByDoctorId,
+  resetLoadAddDetailDataStatus,
 } from "../../redux/reducer/deviceSlice";
 import { getAllDoctors } from "../../redux/reducer/userSlice";
 import { ApiLoadingStatus } from "../../utils/loadingStatus";
@@ -37,6 +38,7 @@ import {
 import dayjs from "dayjs";
 import { original } from "@reduxjs/toolkit";
 import { Context } from "../../utils/context";
+import { showNotiError, showNotiSuccess } from "../../components/notification";
 
 type DeviceDetailType = {
   open: (id: string) => void;
@@ -235,7 +237,6 @@ export const Device: React.FC = () => {
     }
   }, []);
 
-  // Get data
   React.useEffect(() => {
     if (dataState.loadDataStatus === ApiLoadingStatus.Success) {
       const rawData = dataState.data.map((device) =>
@@ -243,32 +244,65 @@ export const Device: React.FC = () => {
       );
       setDataTable(rawData);
     }
+    if (
+      dataState.loadDataStatus === ApiLoadingStatus.Failed &&
+      dataState.errorMessage
+    ) {
+      showNotiError(dataState.errorMessage);
+    }
   }, [dataState.loadDataStatus]);
 
   React.useEffect(() => {
     if (doctorState.loadDoctorDataStatus === ApiLoadingStatus.Success) {
       setDoctorDropDown(doctorState.doctorData);
     }
+    if (
+      doctorState.loadDoctorDataStatus === ApiLoadingStatus.Failed &&
+      dataState.errorMessage
+    ) {
+      showNotiError(dataState.errorMessage);
+    }
   }, [doctorState.loadDoctorDataStatus]);
 
   React.useEffect(() => {
     if (dataState.loadAddDataStatus === ApiLoadingStatus.Success) {
+      showNotiSuccess("Bạn đã thêm thiết bị thành công");
       dispatch(resetLoadAddDataStatus());
       dispatch(getAllDevices());
+    }
+    if (
+      dataState.loadAddDataStatus === ApiLoadingStatus.Failed &&
+      dataState.errorMessage
+    ) {
+      showNotiError(dataState.errorMessage);
     }
   }, [dataState.loadAddDataStatus]);
 
   React.useEffect(() => {
     if (dataState.loadUpdateDataStatus === ApiLoadingStatus.Success) {
+      showNotiSuccess("Bạn đã sửa thiết bị thành công");
       dispatch(resetLoadUpdateDataStatus());
       dispatch(getAllDevices());
+    }
+    if (
+      dataState.loadUpdateDataStatus === ApiLoadingStatus.Failed &&
+      dataState.errorMessage
+    ) {
+      showNotiError(dataState.errorMessage);
     }
   }, [dataState.loadUpdateDataStatus]);
 
   React.useEffect(() => {
     if (dataState.loadDeleteDataStatus === ApiLoadingStatus.Success) {
+      showNotiSuccess("Bạn đã xóa thiết bị thành công");
       dispatch(resetLoadDeleteDataStatus());
       dispatch(getAllDevices());
+    }
+    if (
+      dataState.loadDeleteDataStatus === ApiLoadingStatus.Failed &&
+      dataState.errorMessage
+    ) {
+      showNotiError(dataState.errorMessage);
     }
   }, [dataState.loadDeleteDataStatus]);
 

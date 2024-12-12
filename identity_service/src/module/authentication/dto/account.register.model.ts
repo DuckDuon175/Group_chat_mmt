@@ -8,6 +8,8 @@ import {
   IsPhoneNumber,
   IsDateString,
   IsNumber,
+  ValidateIf,
+  Min,
 } from 'class-validator';
 
 export class AccountRegisterModel {
@@ -39,14 +41,15 @@ export class AccountRegisterModel {
   })
   @IsOptional()
   @IsInt()
+  @ValidateIf((o) => o.gender !== '')
   gender?: number;
 
   @ApiProperty({
-    description: 'Birth date of the user in ISO format',
-    example: '1990-01-01T00:00:00',
+    description: 'Birth date of the user in timestamp format',
+    example: '1732233600',
   })
   @IsOptional()
-  @IsDateString()
+  @ValidateIf((o) => o.birth !== null)
   birth?: bigint;
 
   @ApiProperty({
@@ -55,6 +58,7 @@ export class AccountRegisterModel {
   })
   @IsOptional()
   @IsPhoneNumber('VN')
+  @ValidateIf((o) => o.phone_number !== '')
   phone_number?: string;
 
   @ApiProperty({
@@ -63,6 +67,7 @@ export class AccountRegisterModel {
   })
   @IsOptional()
   @IsUrl()
+  @ValidateIf((o) => o.image !== '')
   image?: string;
 
   @ApiProperty({
@@ -79,6 +84,7 @@ export class AccountRegisterModel {
   })
   @IsOptional()
   @IsString()
+  @ValidateIf((o) => o.information !== '')
   information?: string;
 
   @ApiProperty({
@@ -86,6 +92,6 @@ export class AccountRegisterModel {
     example: 2,
   })
   @IsNotEmpty()
-  @IsInt()
+  @Min(1, { message: 'role should not be empty' })
   role_id: number;
 }

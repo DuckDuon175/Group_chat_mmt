@@ -56,6 +56,18 @@ export class ScheduleRepository {
     }
   }
 
+  async acceptSchedule(id: string) {
+    return await this.scheduleModel.update(
+      {
+        status_id: 1,
+      },
+      {
+        where: {
+          id: id,
+        },
+      }
+    );
+  }
   async updateScheduleById(schedule: ScheduleRequest, id: string) {
     try {
       return await this.scheduleModel.update(

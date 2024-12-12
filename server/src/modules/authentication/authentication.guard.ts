@@ -26,12 +26,17 @@ export class AuthenticationGuard implements CanActivate {
         const expiredTime = response.data?.exp * 1000;
         const accountId = response.data?.accountId;
         const role = response.data?.role;
+
+        const user: UserGuardModel = {
+          accountId: accountId,
+          role: role,
+        };
+
         this.tokenCache[token] = {
           user: { accountId: accountId, role: role },
           expiration: expiredTime,
         };
-        // console.log(this.tokenCache[token]);
-        request.accountId = "123123123";
+        request.user = user;
         return true;
       }
 

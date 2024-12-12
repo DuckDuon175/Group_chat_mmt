@@ -122,6 +122,8 @@ import 'package:bluetooth_ecg/screens/new_screens/home_screen.dart';
 import 'package:bluetooth_ecg/screens/new_screens/schedule_screen.dart';
 import 'package:bluetooth_ecg/screens/new_screens/search_screen.dart';
 import 'package:bluetooth_ecg/screens/new_screens/setting_screen.dart';
+import 'package:bluetooth_ecg/screens/personal_infor_screens/personal_infor_screens.dart';
+import 'package:bluetooth_ecg/screens/schedule_appointments_screens/schedule_appointments.dart';
 import 'package:bluetooth_ecg/screens/user_screens/user_profile_screen.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
@@ -146,8 +148,8 @@ class _MainScreenState extends State<MainScreen> {
     SearchScreen(),
     ScheduleScreen(),
     ChatScreen(),
-    //SettingScreen(),
-    UserProfileScreen(),
+    PersonalInfor(),
+    ScheduleAppointmentScreen()
   ];
 
   @override

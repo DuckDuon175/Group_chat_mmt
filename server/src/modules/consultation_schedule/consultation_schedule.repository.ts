@@ -33,15 +33,16 @@ export class ConsultationScheduleRepository {
   }
 
   async addConsultationSchedule(consultation: ConsultationScheduleRequest) {
-    try {
-      return await this.consultationScheduleModel.create({
-        id: consultation.id,
-        doctor_id: consultation.doctor_id,
-        schedule_id: consultation.schedule_id,
-      });
-    } catch (err) {
-      console.error(err);
-      throw err;
-    }
+    return await this.consultationScheduleModel.create({
+      id: consultation.id,
+      doctor_id: consultation.doctor_id,
+      schedule_id: consultation.schedule_id,
+    });
+  }
+
+  async deleteConsultationByScheduleId(schedule_id: string) {
+    return await this.consultationScheduleModel.destroy({
+      where: { schedule_id: schedule_id },
+    });
   }
 }

@@ -8,6 +8,7 @@ import {
   Row,
   Col,
   Select,
+  Button,
 } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import { useTranslation } from "react-i18next";
@@ -28,6 +29,7 @@ import {
   disabledTime,
   getBusyHours,
 } from "../../utils/dateUtils";
+import { showNotiError } from "../notification";
 
 const ModalComponent = (props: any, ref: any) => {
   const [form] = Form.useForm();
@@ -43,6 +45,7 @@ const ModalComponent = (props: any, ref: any) => {
   const [diagnosis, setDiagnosis] = React.useState<DiagnosisResponse>(
     {} as DiagnosisResponse
   );
+  const [isShow, setIsShow] = React.useState<boolean>(false);
   const { t } = useTranslation();
 
   const handleData = (data: any) => {
@@ -72,6 +75,7 @@ const ModalComponent = (props: any, ref: any) => {
     const res = await props?.submitFunction(payload);
     if (!res?.error) {
       setIsOpen(false);
+      setIsShow(false);
       form.resetFields();
       dispatch(getDiagnosisByScheduleId(data.schedule_id));
       dispatch(getAvailableScheduleByDoctorId(data.doctor_id));
@@ -102,13 +106,6 @@ const ModalComponent = (props: any, ref: any) => {
       dispatch(resetLoadGetDiagnosisByScheduleIdStatus());
       setDiagnosis(diagnosisState.diagnosis);
     }
-    if (
-      diagnosisState.loadGetDiagnosisByScheduleIdStatus ===
-      ApiLoadingStatus.Failed
-    ) {
-      dispatch(resetLoadGetDiagnosisByScheduleIdStatus());
-      setDiagnosis({} as DiagnosisResponse);
-    }
   }, [
     diagnosisState.loadGetDiagnosisByScheduleIdStatus,
     Object.keys(diagnosisState.diagnosis),
@@ -121,6 +118,14 @@ const ModalComponent = (props: any, ref: any) => {
     ) {
       dispatch(resetLoadGetAvailableScheduleByDoctorId());
       setAvailableSchedule(scheduleState.availableSchedule);
+    }
+    if (
+      scheduleState.loadGetAvailableScheduleByDoctorId ===
+        ApiLoadingStatus.Failed &&
+      scheduleState.errorMessage
+    ) {
+      showNotiError(scheduleState.errorMessage);
+      dispatch(resetLoadGetAvailableScheduleByDoctorId());
     }
   }, [scheduleState.loadGetAvailableScheduleByDoctorId]);
 
@@ -138,16 +143,32 @@ const ModalComponent = (props: any, ref: any) => {
         <Modal
           title={props.title}
           open={isOpen}
-          okText="Lưu"
-          okType="primary"
-          onOk={() => form.submit()}
-          cancelText="Hủy bỏ"
           onCancel={() => {
             setData([]);
             setIsOpen(false);
+            setIsShow(false);
             form.resetFields();
           }}
           className={props.className}
+          footer={[
+            <Button key="create-schedule" onClick={() => setIsShow(true)}>
+              Tạo lịch tái khám
+            </Button>,
+            <Button
+              key="cancel"
+              onClick={() => {
+                setData([]);
+                setIsOpen(false);
+                setIsShow(false);
+                form.resetFields();
+              }}
+            >
+              Hủy bỏ
+            </Button>,
+            <Button key="save" type="primary" onClick={() => form.submit()}>
+              Lưu
+            </Button>,
+          ]}
         >
           <Form
             form={form}
@@ -156,10 +177,10 @@ const ModalComponent = (props: any, ref: any) => {
             wrapperCol={{ span: 14 }}
             disabled={!isEnableAdd}
           >
-            <Form.Item label="Bệnh nhân" style={{ marginBottom: "8px" }}>
+            <Form.Item label="Bệnh nhân" style={{ marginBottom: "5px" }}>
               <div>{data.patient}</div>
             </Form.Item>
-            <Form.Item label="Thời gian khám" style={{ marginBottom: "15px" }}>
+            <Form.Item label="Thời gian khám" style={{ marginBottom: "10px" }}>
               <div>
                 Từ {data.start_time} đến {data.end_time}
               </div>
@@ -171,7 +192,7 @@ const ModalComponent = (props: any, ref: any) => {
                     label={item.title}
                     name={item.dataIndex}
                     key={item.dataIndex}
-                    style={{ marginBottom: "22px" }}
+                    style={{ marginBottom: "25px" }}
                     rules={[
                       {
                         required: true,
@@ -186,33 +207,50 @@ const ModalComponent = (props: any, ref: any) => {
                   </Form.Item>
                 );
               }
-              if (item.type === "select") {
+              if (item.type === "select" && isShow) {
                 return (
                   <Form.Item
                     label={item.title}
                     name={item.dataIndex}
                     key={item.dataIndex}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng chọn loại lịch tái khám",
+                      },
+                    ]}
+                    style={{ marginBottom: "25px" }}
                   >
                     <Select
                       options={mapOptions(item.dataSelect || [])}
                       allowClear
                       value={data[item.dataIndex]}
                       placeholder="Loại lịch tái khám"
+                      onChange={() => setIsShow(true)}
                     ></Select>
                   </Form.Item>
                 );
               }
-              if (item.type === "date") {
+              if (item.type === "date" && isShow) {
                 return (
                   <Form.Item
                     label={item.title}
                     name={item.dataIndex}
                     key={item.dataIndex}
                     style={{ marginBottom: "0px" }}
+                    //rules={[{ required: true }]}
                   >
                     <Row gutter={10}>
                       <Col span={12}>
-                        <Form.Item name="schedule_start_time">
+                        <Form.Item
+                          name="schedule_start_time"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng chọn ngày",
+                            },
+                          ]}
+                        >
                           <DatePicker
                             format={"DD/MM/YYYY"}
                             placeholder="Ngày tái khám"
@@ -229,7 +267,15 @@ const ModalComponent = (props: any, ref: any) => {
                         </Form.Item>
                       </Col>
                       <Col span={12}>
-                        <Form.Item name="schedule_session">
+                        <Form.Item
+                          name="schedule_session"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng chọn ca",
+                            },
+                          ]}
+                        >
                           <TimePicker
                             format="HH:mm"
                             placeholder="Ca khám"
