@@ -6,10 +6,10 @@ export class UserResponse {
   id: string;
 
   @Expose()
-  account_id: string;
+  username: string;
 
   @Expose()
-  username: string;
+  password?: string;
 
   @Expose()
   gender?: number;
@@ -21,14 +21,5 @@ export class UserResponse {
   phone_number?: string;
 
   @Expose()
-  image?: string;
-
-  @Expose()
-  status_id: number;
-
-  @Expose()
   information?: string;
-
-  @Expose()
-  role_id: number;
 }

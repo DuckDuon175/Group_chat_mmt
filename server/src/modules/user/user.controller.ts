@@ -1,4 +1,3 @@
-import { AuthenticationGuard } from "../authentication/authentication.guard";
 import {
   Controller,
   Get,
@@ -18,34 +17,62 @@ import {
 import { UserService } from "./user.service";
 import { Response } from "express";
 import { UserRequest } from "./dto/user.request";
-import { ApiBearerAuth, ApiResponse } from "@nestjs/swagger";
+import { ApiResponse } from "@nestjs/swagger";
 import { UserResponse } from "./dto/user.response";
 import { plainToInstance } from "class-transformer";
-import { UserGuardModel } from "../authentication/dto/user.guard.model";
-import { Roles } from "../authentication/decorators/role.decorator";
-import { AuthorizationGuard } from "../authentication/authorization.guard";
-import { Role } from "../authentication/dto/role.enum";
 
 @Controller("users")
-@ApiBearerAuth("access-token") // Reference the name from addBearerAuth()
-@UseGuards(AuthenticationGuard)
-@UseGuards(AuthorizationGuard)
 export class UserController {
   constructor(private userService: UserService) {}
-  @Roles(Role.Admin)
+
+  @Post("register")
+  @ApiResponse({
+    status: 201,
+    description: "User registered successfully",
+  })
+  async register(@Body() user: UserRequest, @Res() res: Response) {
+    const createdUser = await this.userService.register(user);
+    if (!createdUser) {
+      throw new BadRequestException("Email already exists");
+    }
+    return res.json({
+      message: "User registered successfully",
+      user: createdUser,
+    });
+  }
+
+  @Post("login")
+  @ApiResponse({
+    status: 200,
+    description: "Login successful",
+    type: UserResponse,
+  })
+  async login(
+    @Body() loginRequest: { email: string; password: string },
+    @Res() res: Response
+  ) {
+    try {const user = await this.userService.login(
+      loginRequest.email,
+      loginRequest.password
+    );
+    if (!user) {
+      throw new BadRequestException("Invalid email or password");
+    }
+    return res.json({
+      message: "Login successful",
+      user: user,
+    });} catch(err) {
+      console.log(err)
+    }
+  }
+
   @Get("")
   @ApiResponse({
     status: 200,
     type: [UserResponse],
     description: "Successful",
   })
-  async getAllUsers(
-    @Req() req: Request & { user?: UserGuardModel },
-    @Res() res: Response
-  ) {
-    console.log(`[P]:::Get all users`);
-    const user = req.user;
-    console.log("user: ", user);
+  async getAllUsers(@Req() req: Request, @Res() res: Response) {
     try {
       let users = await this.userService.getAllUsers();
       if (!users.length) {
@@ -56,117 +83,6 @@ export class UserController {
     } catch (error) {
       console.log(error);
       throw new InternalServerErrorException("Error when get all users");
-    }
-  }
-
-  @Get("/doctors")
-  @ApiResponse({
-    status: 200,
-    type: [UserResponse],
-    description: "Successful",
-  })
-  async getAllDoctors(@Res() res: Response) {
-    console.log(`[P]:::Get all doctors`);
-    try {
-      let users = await this.userService.getAllDoctors();
-      if (!users.length) {
-        throw new NotFoundException("No user found, please try again");
-      }
-      let result = plainToInstance(UserResponse, users);
-      return res.json(result);
-    } catch (error) {
-      console.log(error);
-      throw new InternalServerErrorException("Error when get all doctors");
-    }
-  }
-
-  @Get(":id")
-  @ApiResponse({
-    status: 200,
-    type: UserResponse,
-    description: "Successful",
-  })
-  async getUserById(
-    @Req() req: Request & { user?: UserGuardModel },
-    @Res() res: Response,
-    @Param("id") id: string
-  ) {
-    try {
-      let user_id;
-      if (id === "user-info") {
-        user_id = (
-          await this.userService.getUserByAccountId(req.user.accountId)
-        ).id;
-      } else user_id = id;
-      console.log(`[P]:::Get user by id: `, user_id);
-      const user = await this.userService.getUserById(user_id);
-      if (!user) {
-        throw new NotFoundException("No user found, please try again");
-      }
-      let result = plainToInstance(UserResponse, user);
-      return res.json(result);
-    } catch (error) {
-      console.log(error);
-      throw new InternalServerErrorException("Error when get user by id");
-    }
-  }
-
-  @Get("data/patient-data")
-  @ApiResponse({
-    status: 200,
-    type: [UserResponse],
-    description: "Successful",
-  })
-  async getPatientByDoctorId(
-    @Req() req: Request & { user?: UserGuardModel },
-    @Res() res: Response
-  ) {
-    const doctorId = (
-      await this.userService.getUserByAccountId(req.user.accountId)
-    ).id;
-    console.log(`[P]:::Get all users by doctor id: `, doctorId);
-    try {
-      let user = await this.userService.getPatientByDoctorId(doctorId);
-      if (!user) {
-        throw new NotFoundException("No user found, please try again");
-      }
-      let result = plainToInstance(UserResponse, user);
-      console.log(result)
-      return res.json(result);
-    } catch (error) {
-      console.log(error);
-      throw new InternalServerErrorException(
-        "Error when get user by doctor id"
-      );
-    }
-  }
-
-  @Get("data/doctor-id")
-  @ApiResponse({
-    status: 200,
-    type: [UserResponse],
-    description: "Successful",
-  })
-  async getDoctorByPatientId(
-    @Req() req: Request & { user?: UserGuardModel },
-    @Res() res: Response
-  ) {
-    const patientId = (
-      await this.userService.getUserByAccountId(req.user.accountId)
-    ).id;
-    console.log(`[P]:::Get all doctors by patient id: `, patientId);
-    try {
-      let user = await this.userService.getDoctorByPatientId(patientId);
-      if (!user) {
-        throw new NotFoundException("No user found, please try again");
-      }
-      let result = plainToInstance(UserResponse, user);
-      return res.json(result);
-    } catch (error) {
-      console.log(error);
-      throw new InternalServerErrorException(
-        "Error when get user by patient id"
-      );
     }
   }
 

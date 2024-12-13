@@ -28,6 +28,7 @@
     "@nestjs/sequelize": "^10.0.1",
     "@nestjs/swagger": "^7.4.2",
     "@nestjs/testing": "^10.4.6",
+    "@types/bcrypt": "^5.0.2",
     "@types/express": "^4.17.21",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.5.5",
@@ -43,8 +44,11 @@
   "dependencies": {
     "@nestjs/core": "^10.4.3",
     "@nestjs/jwt": "^10.2.0",
+    "@nestjs/mongoose": "^10.1.0",
     "@nestjs/platform-express": "^10.4.3",
+    "@nestjs/platform-socket.io": "^10.4.15",
     "@nestjs/sequelize": "^10.0.1",
+    "@nestjs/websockets": "^10.4.15",
     "@types/sequelize": "^4.28.20",
     "@types/supertest": "^6.0.0",
     "axios": "^1.7.7",
@@ -53,11 +57,13 @@
     "class-validator": "^0.14.1",
     "dotenv": "^16.4.5",
     "express": "^4.21.0",
+    "mongoose": "^8.8.4",
     "mysql2": "^3.11.3",
     "nswag": "^14.1.0",
     "sequelize": "^6.37.3",
     "sequelize-cli": "^6.6.2",
     "sequelize-typescript": "^2.1.6",
+    "socket.io": "^4.8.1",
     "typescript-web": "file:",
     "uuid": "^10.0.0"
   }

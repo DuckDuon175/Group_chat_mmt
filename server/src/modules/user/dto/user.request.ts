@@ -15,8 +15,14 @@ export class UserRequest {
     example: 'f4289c39-ff2e-43b0-8f78-4dcc98128a16',
   })
   @IsNotEmpty()
-  @IsUUID()
-  account_id: string;
+  email: string;
+
+  @ApiProperty({
+    description: 'Account ID associated with the user',
+    example: 'f4289c39-ff2e-43b0-8f78-4dcc98128a16',
+  })
+  @IsNotEmpty()
+  password: string;
 
   @ApiProperty({
     description: 'Username for the user',
@@ -51,34 +57,10 @@ export class UserRequest {
   phone_number?: string;
 
   @ApiProperty({
-    description: 'URL of the user\'s profile image',
-    example: 'https://example.com/images/profile.jpg',
-  })
-  @IsOptional()
-  @IsUrl()
-  image?: string;
-
-  @ApiProperty({
-    description: 'User status ID (e.g., active, suspended)',
-    example: 1,
-  })
-  @IsNotEmpty()
-  @IsInt()
-  status_id: number;
-
-  @ApiProperty({
     description: 'Additional information about the user',
     example: 'Some bio or information about the user',
   })
   @IsOptional()
   @IsString()
   information?: string;
-
-  @ApiProperty({
-    description: 'Role ID associated with the user',
-    example: 2,
-  })
-  @IsNotEmpty()
-  @IsInt()
-  role_id: number;
 }

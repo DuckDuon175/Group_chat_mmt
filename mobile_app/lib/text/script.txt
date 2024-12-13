@@ -1,5 +1,0 @@
-def method():
-  A = 5
-  B = 5
-  return A+B
-print(method())

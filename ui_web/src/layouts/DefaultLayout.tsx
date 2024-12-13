@@ -4,24 +4,12 @@ import { Nav } from "./nav";
 import { Routes } from "./routes";
 import { HeaderBar } from "./header";
 import "./layout.scss";
-import { routeMapping } from "./routes.type";
 const { Header, Content } = Layout;
 
 export const DefaultLayout = () => {
   const { pathname } = useLocation();
-  const isFullPage: string[] = [
-    routeMapping.LoginFailed.url,
-    routeMapping.ErrorPage.url,
-    routeMapping.Login.url,
-  ];
   return (
     <div className="App">
-      {isFullPage.includes(pathname) ? (
-        <>
-          {" "}
-          <Routes />{" "}
-        </>
-      ) : (
         <Layout style={{ height: "100vh" }}>
           <Nav />
           <Layout>
@@ -39,7 +27,6 @@ export const DefaultLayout = () => {
             </Layout>
           </Layout>
         </Layout>
-      )}
     </div>
   );
 };

@@ -4,28 +4,18 @@ import "./header.scss";
 import { NavLink } from "react-router-dom";
 import {
   UserOutlined,
-  TranslationOutlined,
   LogoutOutlined,
   MessageFilled,
   SettingOutlined,
+  BellFilled,
 } from "@ant-design/icons";
-import { useTranslation } from "react-i18next";
-import { Notification } from "./notification";
 import avatar from "../assets/avatar.svg";
-import { getRoutesByRole, IRouteItem } from "./routes.type";
-import { Context } from "../utils/context";
 import { GetProps } from "react-redux";
 type SearchProps = GetProps<typeof Input.Search>;
 
 export const HeaderBar = () => {
   const { Search } = Input;
   const { pathname } = useLocation();
-
-  const { t, i18n } = useTranslation();
-
-  const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng);
-  };
 
   const logOut = () => {
     console.log("he");
@@ -66,16 +56,6 @@ export const HeaderBar = () => {
       key: "2",
     },
   ];
-
-  var menulist: { [key: string]: IRouteItem } = getRoutesByRole(Context.role);
-  function getLabelByKey(key: string) {
-    if (key === "/account") return "Thông tin tài khoản";
-
-    const entry = Object.values(menulist).find((item: any) => item.key === key);
-    if (!entry) return null;
-    return entry.label;
-  }
-
   const onSearch: SearchProps["onSearch"] = (value, _e, info) =>
     console.log(info?.source, value);
 
@@ -85,18 +65,9 @@ export const HeaderBar = () => {
         <Col span={24} md={12} className="header-breadcrumb">
           <Breadcrumb>
             <Breadcrumb.Item>
-              <NavLink to="/">{t("page.breadcrumb.pages")}</NavLink>
-            </Breadcrumb.Item>
-            <Breadcrumb.Item>
-              {t(getLabelByKey(pathname) ?? "page.side-bar.home")}
+              <NavLink to="/">{"Về trang chủ"}</NavLink>
             </Breadcrumb.Item>
           </Breadcrumb>
-          <div className="ant-page-header-heading">
-            <span
-              className="ant-page-header-heading-title"
-              style={{ textTransform: "capitalize" }}
-            ></span>
-          </div>
         </Col>
         <Col span={24} md={12} className="header-control">
           <div onClick={(e) => e.preventDefault()}>
@@ -116,11 +87,19 @@ export const HeaderBar = () => {
           </div>
 
           <div className="header-icon-box">
-            <Notification />
+            <BellFilled
+              style={{
+                fontSize: "25px",
+                cursor: "pointer",
+                color: "#ffc107",
+              }}
+            />
           </div>
 
           <div className="header-icon-box">
-            <MessageFilled style={{ color: "#17a2b8" }} />
+            <NavLink to="/chat">
+              <MessageFilled style={{ color: "#17a2b8" }} />
+            </NavLink>
           </div>
 
           <div style={{ flex: 1, marginRight: "24px" }}>

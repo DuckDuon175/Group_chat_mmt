@@ -9,10 +9,14 @@ module.exports = {
         allowNull: false,
         primaryKey: true,
       },
-      account_id: {
+      email: {
         type: Sequelize.STRING,
         allowNull: false,
         unique: true, 
+      },
+      password: {
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       username: {
         type: Sequelize.STRING,
@@ -27,27 +31,8 @@ module.exports = {
       phone_number: {
         type: Sequelize.STRING,
       },
-      image: {
-        type: Sequelize.STRING,
-      },
-      status_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: "user_status",
-          key: "id",
-        },
-      },
       information: {
         type: Sequelize.TEXT,
-      },
-      role_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: "user_role",
-          key: "id",
-        },
       },
       createdAt: {
         type: Sequelize.DATE,

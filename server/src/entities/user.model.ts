@@ -9,15 +9,7 @@ import {
   HasMany,
   Default,
 } from "sequelize-typescript";
-import { UserRoleModel } from "./user_role.model";
-import { UserStatusModel } from "./user_status.model";
-
-import { DeviceModel } from "./device.model";
-import { ScheduleModel } from "./schedule.model";
-import { ConsultationScheduleModel } from "./consultation_schedule.model";
-import { RecordModel } from "./record.model";
 import { v4 as uuidv4 } from "uuid";
-import { NotificationScheduleModel } from "./notification_schedule.model";
 
 @Table({ tableName: "users" })
 export class UserModel extends Model<UserModel> {
@@ -30,10 +22,19 @@ export class UserModel extends Model<UserModel> {
   id: string;
 
   @Column({
-    type: DataType.STRING(255),
-    allowNull: false,
+    type: DataType.STRING(255), 
+    allowNull: false, 
+    validate: {
+        isEmail: true, 
+    },
   })
-  account_id: string;
+  email: string;
+
+  @Column({
+    type: DataType.STRING(255),
+    allowNull: false, 
+  })
+  password: string;
 
   @Column({
     type: DataType.STRING(255),
@@ -60,26 +61,6 @@ export class UserModel extends Model<UserModel> {
   phone_number: string;
 
   @Column({
-    type: DataType.STRING(255),
-    allowNull: true,
-  })
-  image: string;
-
-  @ForeignKey(() => UserRoleModel)
-  @Column({
-    type: DataType.INTEGER,
-    allowNull: false,
-  })
-  role_id: number;
-
-  @ForeignKey(() => UserStatusModel)
-  @Column({
-    type: DataType.INTEGER,
-    allowNull: false,
-  })
-  status_id: number;
-
-  @Column({
     type: DataType.TEXT,
     allowNull: true,
   })
@@ -94,25 +75,4 @@ export class UserModel extends Model<UserModel> {
     type: DataType.DATE,
   })
   updatedAt: Date;
-
-  @BelongsTo(() => UserRoleModel)
-  user_role: UserRoleModel;
-
-  @BelongsTo(() => UserStatusModel)
-  user_status: UserStatusModel;
-
-  @HasMany(() => DeviceModel)
-  devices: DeviceModel[];
-
-  @HasMany(() => RecordModel)
-  records: RecordModel[];
-
-  @HasMany(() => ScheduleModel)
-  schedules: ScheduleModel[];
-
-  @HasMany(() => ConsultationScheduleModel)
-  consultation_schedules: ConsultationScheduleModel[];
-
-  @HasMany(() => NotificationScheduleModel)
-  notification_schedules: NotificationScheduleModel[];
 }

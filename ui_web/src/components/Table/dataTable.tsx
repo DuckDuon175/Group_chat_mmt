@@ -19,15 +19,15 @@ const { confirm } = Modal;
 interface Props {
   role?: string;
   data: any[];
-  name: string;
+  name?: string;
   loading: boolean;
   column: ColumnsType<any>;
   addButton?: boolean;
   addFunction?: () => void;
   addDeviceButton?: boolean;
-  editButton: boolean;
+  editButton?: boolean;
   editFunction?: (id: any) => void;
-  deleteButton: boolean;
+  deleteButton?: boolean;
   deleteFunction?: (id: any) => void;
   chartButton?: boolean;
   openChart?: () => void;

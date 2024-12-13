@@ -10,42 +10,34 @@ import { useAppDispatch, useAppSelector } from "../../redux/hook";
 import { MessageSchema, MessageRequest, UserResponse } from "../../api";
 import { ApiLoadingStatus } from "../../utils/loadingStatus";
 import io from "socket.io-client";
-import { getUserById } from "../../redux/reducer/userSlice";
 
 const socket = io("http://localhost:3000");
 
 export const ChatMes: React.FC = () => {
   const dispatch = useAppDispatch();
   const dataState = useAppSelector((state) => state.chat);
-  const userDataState = useAppSelector((state) => state.user);
-  const [lastSentMessage, setLastSentMessage] = useState<MessageSchema | null>(
-    null
-  );
   const [messages, setMessages] = useState<MessageSchema[]>([]);
   const [newMessage, setNewMessage] = useState("");
-  const [accountData, setData] = React.useState<UserResponse>(
+  const [accountData, setAccountData] = useState<UserResponse>(
     {} as UserResponse
   );
   const [showTimestamp, setShowTimestamp] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
+  // Cuộn xuống cuối mỗi khi có tin nhắn mới
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
 
-  React.useEffect(() => {
-    dispatch(getUserById("user-info"));
+  // Lấy thông tin người dùng từ localStorage
+  useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem("ui-context") || "{}");
+    setAccountData(userData);
   }, []);
 
-  React.useEffect(() => {
-    if (userDataState.loadGetUserByIdStatus === ApiLoadingStatus.Success) {
-      setData(userDataState.userData);
-      console.log("account data loaded", accountData);
-    }
-  }, [userDataState.loadGetUserByIdStatus]);
-
+  // Nhận tin nhắn từ socket
   useEffect(() => {
     socket.on("receivedMessage", (data) => {
       setMessages((prevMessages) => [...prevMessages, data]);
@@ -56,23 +48,24 @@ export const ChatMes: React.FC = () => {
     };
   }, []);
 
+  // Gửi tin nhắn
   const sendMessage = () => {
     if (newMessage.trim() !== "") {
       const messageData = {
         message: newMessage,
         groupChatId: "fmECG",
-        timestamp: new Date().toLocaleString(),
+        timestamp: new Date().toISOString(),
         senderId: accountData.id,
         senderName: accountData.username,
       };
 
       const messageRequest = MessageRequest.fromJS(messageData);
       dispatch(sendMessageRedux(messageRequest));
-
-      setNewMessage(""); // Reset input message
+      setNewMessage(""); // Xóa nội dung input sau khi gửi
     }
   };
 
+  // Tải tin nhắn từ API
   useEffect(() => {
     dispatch(
       loadMessages({
@@ -84,20 +77,6 @@ export const ChatMes: React.FC = () => {
 
   useEffect(() => {
     if (dataState.loadGetMessageStatus === ApiLoadingStatus.Success) {
-      const data = dataState.messages.reduce(
-        (initial: MessageSchema[], msg) => {
-          if (initial.length > 0) {
-            const preId = initial[initial.length - 1].senderId;
-            if (preId === msg.senderId) {
-              msg.before = true;
-            }
-          }
-          initial.push(msg);
-          return initial;
-        },
-        []
-      );
-      console.log(data);
       setMessages(dataState.messages);
       dispatch(resetGetMessageStatus());
     }
@@ -109,6 +88,11 @@ export const ChatMes: React.FC = () => {
     }
   }, [dataState.loadSendMessageStatus, dispatch]);
 
+  // Lấy ký tự đầu tiên của tên
+  const getAvatarInitial = (name: string) => {
+    return name ? name.charAt(0).toUpperCase() : "?";
+  };
+
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -116,17 +100,18 @@ export const ChatMes: React.FC = () => {
     }
   };
 
-  const getAvatarInitial = (name: string) => {
-    return name.charAt(0).toUpperCase();
-  };
-
   return (
     <div className="chat-container">
+      {/* Sidebar */}
       <div className="sidebar">
         <input type="text" className="search" placeholder="Tìm kiếm ..." />
-        <li>Nhóm cộng đồng</li>
-        <li>Nhóm bác sĩ</li>
+        <ul className="chat-groups">
+          <li className="group-item">Nhóm cộng đồng</li>
+          <li className="group-item">Nhóm ABC</li>
+        </ul>
       </div>
+
+      {/* Chat box */}
       <div className="chat-box-container">
         <div className="chat-header">
           <h2>Tin nhắn cộng đồng</h2>
@@ -140,20 +125,19 @@ export const ChatMes: React.FC = () => {
                 className={`message ${
                   msg.senderId === accountData.id ? "self" : "other"
                 }`}
-                onClick={() => setShowTimestamp(index)} // Lưu index của tin nhắn đã click
+                onClick={() => setShowTimestamp(index)}
               >
-              
-                  <div
-                    className={`avatar ${msg.before === true ? "hidden" : ""}`}
-                  >
-                    {getAvatarInitial(msg.senderName)}
-                  </div>
-                
+                {/* Avatar */}
+                <div className={`avatar ${msg.before ? "hidden" : ""}`}>
+                  {getAvatarInitial(msg.senderName)}
+                </div>
+
+                {/* Nội dung tin nhắn */}
                 <div>
                   <span>{msg.message}</span>
                   {showTimestamp === index && (
                     <div className="message-time">
-                      <em>{msg.timestamp}</em>
+                      <em>{new Date(msg.time).toLocaleString()}</em>
                     </div>
                   )}
                 </div>
@@ -165,6 +149,7 @@ export const ChatMes: React.FC = () => {
           <div ref={messagesEndRef} />
         </div>
 
+        {/* Input box */}
         <div className="chat-input">
           <input
             type="text"
@@ -173,9 +158,7 @@ export const ChatMes: React.FC = () => {
             onKeyPress={handleKeyPress}
             placeholder="Nhập tin nhắn..."
           />
-          <button onClick={sendMessage} onKeyDown={sendMessage}>
-            Send
-          </button>
+          <button onClick={sendMessage}>Send</button>
         </div>
       </div>
     </div>

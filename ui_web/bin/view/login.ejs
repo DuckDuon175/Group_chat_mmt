@@ -438,15 +438,6 @@
                 </select>
               </div>
               <div class="input-group">
-                <i class="bx bxs-role"></i>
-                <label for="role-label">Chức vụ </label>
-                <select id="sign-up-role" required>
-                  <option value="0">Chọn chức vụ</option>
-                  <option value="2">Bác sĩ</option>
-                  <option value="3">Bệnh nhân</option>
-                </select>
-              </div>
-              <div class="input-group">
                 <i class="bx bxs-birth"></i>
                 <label for="birthday-label">Ngày sinh </label>
                 <input
@@ -474,17 +465,6 @@
                   placeholder="Thông tin người dùng"
                   id="sign-up-info"
                   class="sign-up-input"
-                  required
-                />
-              </div>
-              <div class="input-group">
-                <i class="bx bx-img"></i>
-                <label for="img-label">Chọn ảnh đại diện </label>
-                <input
-                  type="file"
-                  id="sign-up-img"
-                  class="sign-up-input"
-                  name="file"
                   required
                 />
               </div>
@@ -649,47 +629,45 @@
 
       //sign in
 
-      var ssoUrl = `<%= ssourl %>`;
-      console.log(ssoUrl);
+      var ssoUrl = "http://localhost:3000/users/login";
       const loginFunction = async () => {
-        const username = document.querySelector("#input-user-name").value;
+        const email = document.querySelector("#input-user-name").value;
         const password = document.querySelector("#input-password").value;
-        // if (username && password) {
-        document.getElementById("myModal").style.display = "grid";
+
+        if (!email || !password) {
+          window.alert("Email and password are required");
+          return;
+        }
+
         try {
-          await fetch(ssoUrl, {
+          const response = await fetch(ssoUrl, {
             method: "POST",
-            mode: "cors",
-            cache: "no-cache",
-            credentials: "same-origin",
             headers: {
               "Content-Type": "application/json",
             },
-            redirect: "follow",
-            referrerPolicy: "no-referrer",
             body: JSON.stringify({
-              email: username,
+              email: email,
               password: password,
             }),
-          })
-            .then((response) => {
-              if (!response.ok) {
-                return Promise.reject(`Error: ${response.status}`);
-              }
-              return response.json();
-            })
-            .then((data) => {
-              // Replace the current page content with the HTML received from the server
-              const form = document.createElement("form");
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to login");
+          }
+
+          const data = await response.json();
+          console.log("Login successful:", data.user);
+
+          window.alert("Login successful!");
+
+          const form = document.createElement("form");
               form.method = "POST";
               form.mode = "cors";
               form.cache = "no-cache";
               form.action = "/";
               const fields = {
-                access_token: data.access_token,
-                refresh_token: data.refresh_token,
-                expired_time: data.expired_time,
-                role: data.role,
+                user: JSON.stringify(data.user),
               };
 
               for (const [name, value] of Object.entries(fields)) {
@@ -701,25 +679,17 @@
               }
               document.body.appendChild(form);
               form.submit();
-            })
-            .catch((error) => {
-              window.alert("wrong username or password", error);
-              document.getElementById("myModal").style.display = "none";
-            });
+      
+
         } catch (err) {
-          console.log(err);
-          document.getElementById("myModal").style.display = "none";
-          window.alert("error login");
+          console.error("Error during login:", err);
+          window.alert(err.message || "Error during login");
         }
-        // } else {
-        //   window.alert("input username and password");
-        // }
       };
 
       //sign up
-      var signupUrl = `<%= registerurl %>`;
+      var signupUrl = "http://localhost:3000/users/register";
       console.log(signupUrl);
-      //var uploadImg = "http://127.0.0.1:3000/api/register/upload-img";
       const signupFunction = async () => {
         const username = document.querySelector("#sign-up-username").value;
         const email = document.querySelector("#sign-up-email").value;
@@ -728,7 +698,6 @@
         const birthConvert = document.querySelector("#sign-up-birth").value;
         const birth = Date.parse(birthConvert) / 1000;
 
-        const role_id = Number(document.querySelector("#sign-up-role").value);
         const confirmPassword =
           document.querySelector("#confirm-password").value;
         const phone_number = document.querySelector(
@@ -738,10 +707,6 @@
         const gender = Number(document.querySelector("#sign-up-gender").value);
         const information = document.querySelector("#sign-up-info").value;
 
-        //const image = document.querySelector("#sign-up-img").files[0];
-        // let upload = new FormData();
-        // upload.append("file", image);
-        // upload.append("email", email);
         if (confirmPassword && confirmPassword === password) {
           try {
             const signupResult = await fetch(signupUrl, {
@@ -769,43 +734,6 @@
             });
             console.log(signupResult);
             if (signupResult.ok) {
-              // console.log(image);
-              // if (image == undefined) {
-              //   window.alert("Sign up successful!");
-              //   window.location.reload();
-              // }
-              // if (
-              //   image != undefined &&
-              //   (image.type == "image/jpeg" || image.type == "image/png")
-              // ) {
-              //   const uploadResult = await fetch(uploadImg, {
-              //     method: "POST",
-              //     mode: "cors",
-              //     cache: "no-cache",
-              //     credentials: "same-origin",
-              //     redirect: "follow",
-              //     referrerPolicy: "no-referrer",
-              //     body: upload,
-              //   });
-              //   if (uploadResult.ok) {
-              //     window.alert("Sign up successful!");
-              //     window.location.reload();
-              //   } else {
-              //     let data = await signupResult.json();
-              //     console.log(data.message);
-              //     window.alert(data.message);
-              //   }
-              // }
-              //   if (
-              //     image != undefined &&
-              //     image.type != "image/jpeg" &&
-              //     image.type != "image/png"
-              //   ) {
-              //     window.alert("Wrong image format, please try again");
-              //   }
-              // } else {
-              // let data = await signupResult.json();
-              // window.alert(data.message);
               window.alert("sign up successful!");
               window.location.reload();
             } else {
