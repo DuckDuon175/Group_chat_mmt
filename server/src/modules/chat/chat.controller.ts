@@ -38,7 +38,7 @@ export class ChatController {
 
       const userId = authorizationHeader.split(" ")[1]; // Bỏ chữ "Bearer"
       if (!userId) {
-        throw new Error("Invalid aauthorization header format");
+        throw new Error("Invalid authorization header format");
       }
       console.log("User id:", userId);
 

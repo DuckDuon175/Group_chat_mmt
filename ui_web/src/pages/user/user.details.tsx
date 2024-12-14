@@ -1,7 +1,6 @@
 import * as React from "react";
 import { useAppDispatch, useAppSelector } from "../../redux/hook";
 import { DrawerSide } from "../../components/Drawer/Drawer";
-import { getUserById } from "../../redux/reducer/userSlice";
 import { ApiLoadingStatus } from "../../utils/loadingStatus";
 import { UserOutlined } from "@ant-design/icons";
 import { Avatar, Divider } from "antd";
@@ -12,16 +11,6 @@ const UserDetailComponent = (props: any, ref: any) => {
   const [data, setData] = React.useState<any>([]);
   const [idSelect, setIdSelect] = React.useState<string>("");
   const dataState = useAppSelector((state) => state.user);
-
-  React.useImperativeHandle(ref, () => ({
-    open: (id: string) => {
-      setIsOpen(true);
-      if (id !== idSelect) {
-        setIdSelect(id);
-        dispatch(getUserById(id));
-      }
-    },
-  }));
 
   React.useEffect(() => {
     if (dataState.loadGetUserByIdStatus === ApiLoadingStatus.Success) {

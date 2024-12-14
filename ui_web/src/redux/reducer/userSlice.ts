@@ -34,31 +34,6 @@ export const getAllUsers = createAsyncThunkWrap("/users", async () => {
   return await Service.userService.getAllUsers();
 });
 
-export const getAllDoctors = createAsyncThunkWrap("users/doctors", async () => {
-  return await Service.userService.getAllDoctors();
-});
-
-export const getUserById = createAsyncThunkWrap(
-  "/users/id",
-  async (id: string) => {
-    return await Service.userService.getUserById(id);
-  }
-);
-
-export const getPatientByDoctorId = createAsyncThunkWrap(
-  "/users/data/patient-data",
-  async () => {
-    return await Service.userService.getPatientByDoctorId();
-  }
-);
-
-export const getDoctorByPatientId = createAsyncThunkWrap(
-  "/users/data/doctor-data",
-  async () => {
-    return await Service.userService.getDoctorByPatientId();
-  }
-);
-
 export const updateUserById = createAsyncThunkWrap(
   "/users/update",
   async (user: UserRequest) => {
@@ -102,54 +77,6 @@ export const userSlice = createSlice({
         state.data = [];
         state.errorMessage = (<any>action.payload)?.message;
         state.loadDataStatus = ApiLoadingStatus.Failed;
-      })
-      .addCase(getAllDoctors.pending, (state, action) => {
-        state.loadDoctorDataStatus = ApiLoadingStatus.Loading;
-      })
-      .addCase(getAllDoctors.fulfilled, (state, action) => {
-        state.doctorData = action.payload;
-        state.loadDoctorDataStatus = ApiLoadingStatus.Success;
-      })
-      .addCase(getAllDoctors.rejected, (state, action) => {
-        state.doctorData = [];
-        state.errorMessage = (<any>action.payload)?.message;
-        state.loadDoctorDataStatus = ApiLoadingStatus.Failed;
-      })
-      .addCase(getPatientByDoctorId.pending, (state, action) => {
-        state.loadDataStatus = ApiLoadingStatus.Loading;
-      })
-      .addCase(getPatientByDoctorId.fulfilled, (state, action) => {
-        state.data = action.payload;
-        state.loadDataStatus = ApiLoadingStatus.Success;
-      })
-      .addCase(getPatientByDoctorId.rejected, (state, action) => {
-        state.data = [];
-        state.errorMessage = (<any>action.payload)?.message;
-        state.loadDataStatus = ApiLoadingStatus.Failed;
-      })
-      .addCase(getDoctorByPatientId.pending, (state, action) => {
-        state.loadDataStatus = ApiLoadingStatus.Loading;
-      })
-      .addCase(getDoctorByPatientId.fulfilled, (state, action) => {
-        state.data = action.payload;
-        state.loadDataStatus = ApiLoadingStatus.Success;
-      })
-      .addCase(getDoctorByPatientId.rejected, (state, action) => {
-        state.data = [];
-        state.errorMessage = (<any>action.payload)?.message;
-        state.loadDataStatus = ApiLoadingStatus.Failed;
-      })
-      .addCase(getUserById.pending, (state, action) => {
-        state.loadGetUserByIdStatus = ApiLoadingStatus.Loading;
-      })
-      .addCase(getUserById.fulfilled, (state, action) => {
-        state.userData = action.payload;
-        state.loadGetUserByIdStatus = ApiLoadingStatus.Success;
-      })
-      .addCase(getUserById.rejected, (state, action) => {
-        state.userData = {} as UserResponse;
-        state.errorMessage = (<any>action.payload)?.message;
-        state.loadGetUserByIdStatus = ApiLoadingStatus.Failed;
       })
       .addCase(updateUserById.pending, (state, action) => {
         state.loadUpdateDataStatus = ApiLoadingStatus.Loading;

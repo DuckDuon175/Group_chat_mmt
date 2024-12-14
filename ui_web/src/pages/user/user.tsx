@@ -9,8 +9,6 @@ import {
   deleteUserById,
   resetLoadUpdateDataStatus,
   resetLoadDeleteDataStatus,
-  getPatientByDoctorId,
-  getDoctorByPatientId,
 } from "../../redux/reducer/userSlice";
 import { ApiLoadingStatus } from "../../utils/loadingStatus";
 
