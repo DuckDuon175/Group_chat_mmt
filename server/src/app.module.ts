@@ -3,6 +3,7 @@ import { Module } from "@nestjs/common";
 import { UserModule } from "./modules/user/user.module";
 import { SequelizeModule } from "@nestjs/sequelize";
 import { ChatModule } from "./modules/chat/chat.module";
+import { GroupChatModule } from './modules/groupChat/groupChat.module';
 // import { AuthenticationModule } from "./modules/authentication/authentication.module";
 require("dotenv").config();
 
@@ -21,7 +22,8 @@ require("dotenv").config();
     }),
     MongooseModule.forRoot('mongodb://localhost:27017/chatdb'),
     UserModule,
-    ChatModule
+    ChatModule,
+    GroupChatModule,
   ],
 })
 export class AppModule {}

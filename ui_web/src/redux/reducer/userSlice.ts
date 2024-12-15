@@ -6,9 +6,6 @@ import { Service } from "../../api";
 
 interface IUserState {
   data: UserResponse[];
-  doctorData: UserResponse[];
-  userData: UserResponse;
-  accountData: UserResponse;
   loadDataStatus: ApiLoadingStatus;
   loadDoctorDataStatus: ApiLoadingStatus;
   loadGetUserByIdStatus: ApiLoadingStatus;
@@ -19,9 +16,6 @@ interface IUserState {
 
 const initialState: IUserState = {
   data: [],
-  doctorData: [],
-  userData: {} as UserResponse,
-  accountData: {} as UserResponse,
   loadDataStatus: ApiLoadingStatus.None,
   loadDoctorDataStatus: ApiLoadingStatus.None,
   loadGetUserByIdStatus: ApiLoadingStatus.None,
@@ -40,6 +34,7 @@ export const updateUserById = createAsyncThunkWrap(
     return await Service.userService.updateUserById(user);
   }
 );
+
 export const deleteUserById = createAsyncThunkWrap(
   "/users/delete",
   async (id: string) => {

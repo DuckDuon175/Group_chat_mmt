@@ -9,13 +9,22 @@ import {
 import { useAppDispatch, useAppSelector } from "../../redux/hook";
 import { MessageSchema, MessageRequest, UserResponse } from "../../api";
 import { ApiLoadingStatus } from "../../utils/loadingStatus";
-import io from "socket.io-client";
+import { getAllUsers } from "../../redux/reducer/userSlice";
+import { Button, Col, Form, Input, Modal, Row, Select } from "antd";
+import type { SelectProps } from "antd";
 
+import io from "socket.io-client";
+import {
+  createGroupChat,
+  resetLoadCreateGroupChat,
+} from "../../redux/reducer/groupChatSlice";
 const socket = io("http://localhost:3000");
 
 export const ChatMes: React.FC = () => {
   const dispatch = useAppDispatch();
+  const userState = useAppSelector((state) => state.user);
   const dataState = useAppSelector((state) => state.chat);
+  const groupState = useAppSelector((state) => state.groupChat);
   const [messages, setMessages] = useState<MessageSchema[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [accountData, setAccountData] = useState<UserResponse>(
@@ -23,15 +32,33 @@ export const ChatMes: React.FC = () => {
   );
   const [showTimestamp, setShowTimestamp] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [groupMembers, setGroupMembers] = useState<string[]>([]);
+  const [groupTitle, setGroupTitle] = useState("");
+  const [userDropDown, setUserDropDown] = useState<any[]>([]);
+  const [form] = Form.useForm();
 
-  // Cuộn xuống cuối mỗi khi có tin nhắn mới
+  useEffect(() => {
+    dispatch(getAllUsers());
+  }, []);
+
+  useEffect(() => {
+    if (userState.loadDataStatus === ApiLoadingStatus.Success) {
+      setUserDropDown(
+        userState.data.map((user) => ({
+          label: user.username,
+          value: user.id,
+        }))
+      );
+    }
+  }, [userState.loadDataStatus]);
+
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
 
-  // Lấy thông tin người dùng từ localStorage
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem("ui-context") || "{}");
     setAccountData(userData);
@@ -61,11 +88,10 @@ export const ChatMes: React.FC = () => {
 
       const messageRequest = MessageRequest.fromJS(messageData);
       dispatch(sendMessageRedux(messageRequest));
-      setNewMessage(""); // Xóa nội dung input sau khi gửi
+      setNewMessage("");
     }
   };
 
-  // Tải tin nhắn từ API
   useEffect(() => {
     dispatch(
       loadMessages({
@@ -100,11 +126,44 @@ export const ChatMes: React.FC = () => {
     }
   };
 
+  const handleCreateGroup = () => {
+    const payload = {
+      title: groupTitle,
+      hostId: accountData.id,
+      member: groupMembers,
+    };
+
+    console.log("Payload:", payload);
+
+    dispatch(createGroupChat(payload as any));
+  };
+
+  useEffect(() => {
+    if (groupState.loadCreateGroupChat == ApiLoadingStatus.Success) {
+      console.log("Group created successfully:");
+      setIsModalOpen(false);
+      form.resetFields();
+      setGroupMembers([]);
+      dispatch(resetLoadCreateGroupChat());
+    }
+  }, [groupState.loadCreateGroupChat]);
+  
   return (
     <div className="chat-container">
       {/* Sidebar */}
       <div className="sidebar">
-        <input type="text" className="search" placeholder="Tìm kiếm ..." />
+        <input
+          type="text"
+          className="search"
+          placeholder="Tìm kiếm ..."
+          style={{ marginBottom: "10px" }}
+        />
+        <Button
+          style={{ marginTop: "10px", marginBottom: "0px", height: "40px" }}
+          onClick={() => setIsModalOpen(true)}
+        >
+          + Tạo nhóm chat
+        </Button>
         <ul className="chat-groups">
           <li className="group-item">Nhóm cộng đồng</li>
           <li className="group-item">Nhóm ABC</li>
@@ -125,7 +184,10 @@ export const ChatMes: React.FC = () => {
                 className={`message ${
                   msg.senderId === accountData.id ? "self" : "other"
                 }`}
-                onClick={() => setShowTimestamp(index)}
+                onClick={() =>
+                  setShowTimestamp((prev) => (prev === index ? null : index))
+                }
+                style={{ cursor: "pointer" }}
               >
                 {/* Avatar */}
                 <div className={`avatar ${msg.before ? "hidden" : ""}`}>
@@ -133,14 +195,37 @@ export const ChatMes: React.FC = () => {
                 </div>
 
                 {/* Nội dung tin nhắn */}
-                <div>
-                  <span>{msg.message}</span>
-                  {showTimestamp === index && (
-                    <div className="message-time">
-                      <em>{new Date(msg.time).toLocaleString()}</em>
-                    </div>
-                  )}
-                </div>
+                {msg.senderId === accountData.id ? (
+                  <div>
+                    <Row>
+                      <Col>
+                        {showTimestamp === index && (
+                          <div className="message-time">
+                            <em>{new Date(msg.time).toLocaleString()}</em>
+                          </div>
+                        )}
+                      </Col>
+                      <Col>
+                        <span>{msg.message}</span>
+                      </Col>
+                    </Row>
+                  </div>
+                ) : (
+                  <div>
+                    <Row>
+                      <Col>
+                        <span>{msg.message}</span>
+                      </Col>
+                      <Col>
+                        {showTimestamp === index && (
+                          <div className="message-time">
+                            <em>{new Date(msg.time).toLocaleString()}</em>
+                          </div>
+                        )}
+                      </Col>
+                    </Row>
+                  </div>
+                )}
               </div>
             ))
           ) : (
@@ -161,6 +246,53 @@ export const ChatMes: React.FC = () => {
           <button onClick={sendMessage}>Send</button>
         </div>
       </div>
+
+      <Modal
+        width={"490px"}
+        title="Tạo nhóm mới"
+        open={isModalOpen}
+        onOk={() => form.submit()}
+        okText="Lưu"
+        cancelText="Hủy"
+        onCancel={() => {
+          form.resetFields();
+          setIsModalOpen(false);
+          setGroupMembers([]);
+        }}
+      >
+        <Form
+          form={form}
+          layout="horizontal"
+          onFinish={handleCreateGroup}
+          labelCol={{ span: 6 }}
+          wrapperCol={{ span: 18 }}
+        >
+          <Form.Item
+            label="Tên nhóm"
+            name="groupName"
+            style={{ marginTop: "30px", marginBottom: "0px" }}
+          >
+            <Input
+              placeholder="Nhập tên nhóm"
+              onChange={(e) => setGroupTitle(e.target.value)}
+            />
+          </Form.Item>
+          <Form.Item
+            label="Thành viên"
+            name="members"
+            style={{ marginTop: "15px" }}
+          >
+            <Select
+              mode="multiple"
+              placeholder="Chọn thành viên"
+              options={userDropDown}
+              allowClear
+              value={groupMembers}
+              onChange={(value) => setGroupMembers(value)}
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };

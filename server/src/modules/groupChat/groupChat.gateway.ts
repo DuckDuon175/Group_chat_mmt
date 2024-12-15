@@ -27,9 +27,9 @@ export class GroupChatGateway {
     try {
       const newGroup = await this.groupChatService.saveGroupChat(payload);
       this.server.emit("createGroup", newGroup);
+      return newGroup;
     } catch (e) {
       console.log(e);
-      client.emit("error", { message: e });
     }
   }
 
@@ -39,6 +39,7 @@ export class GroupChatGateway {
       const groupChat = await this.groupChatService.findGroupChatById(groupId);
       const chats = await this.chatService.getMessageByGroupId(groupId);
       this.server.emit("getByIdResponse", { groupChat, chats });
+      return groupChat;
     } catch (e) {
       console.log(e);
       client.emit("error", { message: e });

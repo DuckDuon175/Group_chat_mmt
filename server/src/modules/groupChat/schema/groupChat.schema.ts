@@ -1,4 +1,5 @@
-import { Prop, Schema } from "@nestjs/mongoose";
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { Document } from 'mongoose';
 
 @Schema()
 export class GroupChatSchema extends Document {
@@ -9,5 +10,13 @@ export class GroupChatSchema extends Document {
   hostId: string;
 
   @Prop({ required: true })
-  member: string;
+  member: [string];
+
+  @Prop({ required: true })
+  sendEvent: string;
+
+  @Prop({ required: true })
+  receiveEvent: string;
 }
+
+export const GroupMessageSchema = SchemaFactory.createForClass(GroupChatSchema);

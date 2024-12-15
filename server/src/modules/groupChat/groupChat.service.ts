@@ -15,6 +15,9 @@ export class GroupChatService {
     groupChatRequest: groupChatRequest
   ): Promise<GroupChatSchema> {
     const groupChat = new this.groupChatModel(groupChatRequest);
+    groupChat.sendEvent = `sendMessageTo${groupChat.id}`;
+    groupChat.receiveEvent = `receiveMessageFrom${groupChat.id}`;
+    console.log(groupChat)
     return await groupChat.save();
   }
 

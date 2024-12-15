@@ -7,7 +7,7 @@ const api_url: string = "http://localhost:3000";
 const Context = JSON.parse(localStorage.getItem("ui-context") || "{}");
 
 const userId = Context.id;
-console.log(userId)
+console.log(userId);
 
 const authorizedFetchFunction = (
   url: RequestInfo,
@@ -30,12 +30,21 @@ const chatClient = new ApiClientFactory.ChatControllerClient(api_url, {
   fetch: authorizedFetchFunction,
 });
 
+const groupChatClient = new ApiClientFactory.GroupChatControllerClient(
+  api_url,
+  {
+    fetch: authorizedFetchFunction,
+  }
+);
+
 interface IService {
   userService: ApiClientFactory.UserControllerClient;
   chatService: ApiClientFactory.ChatControllerClient;
+  groupChatService: ApiClientFactory.GroupChatControllerClient;
 }
 
 export const Service: IService = {
   userService: userClient,
   chatService: chatClient,
+  groupChatService: groupChatClient,
 };

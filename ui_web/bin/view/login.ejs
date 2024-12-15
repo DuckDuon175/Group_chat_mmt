@@ -628,7 +628,6 @@
       }, 200);
 
       //sign in
-
       var ssoUrl = "http://localhost:3000/users/login";
       const loginFunction = async () => {
         const email = document.querySelector("#input-user-name").value;
@@ -679,8 +678,6 @@
               }
               document.body.appendChild(form);
               form.submit();
-      
-
         } catch (err) {
           console.error("Error during login:", err);
           window.alert(err.message || "Error during login");

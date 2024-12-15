@@ -3,15 +3,6 @@ import { ApiLoadingStatus } from '../../utils/loadingStatus';
 import { createAsyncThunkWrap } from '../handler';
 import { MessageSchema, MessageRequest, Service } from '../../api';
 
-interface IMessage {
-    user: string;
-    message: string;
-    timestamp: string; // Thời gian gửi tin nhắn
-    senderId: string;  // Thêm senderId cho chat cá nhân
-    receiverId?: string;  // Thêm receiverId (nếu là chat cá nhân)
-    groupChatId?: string;  // Thêm groupChatId cho chat nhóm
-}
-
 interface IChatState {
     messages: MessageSchema[];
     loadGetMessageStatus: ApiLoadingStatus;

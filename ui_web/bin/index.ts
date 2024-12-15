@@ -28,10 +28,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/identity", (req: Request, res: Response) => {
-  return res.render("login", {
-    registerurl: `${config.SSO_URL}/register`,
-    ssourl: `${config.SSO_URL}/login`,
-  });
+  return res.render("login");
 });
 
 app.post("/", async (req: Request, res: Response, next) => {

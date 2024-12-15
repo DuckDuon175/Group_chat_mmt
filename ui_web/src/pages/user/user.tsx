@@ -1,15 +1,6 @@
 import * as React from "react";
 import { useAppDispatch, useAppSelector } from "../../redux/hook";
 import DataTable from "../../components/Table/dataTable";
-import { ModalControlData } from "../../components/Modal/ModalControlData";
-import { UserDetail } from "./user.details";
-import {
-  getAllUsers,
-  updateUserById,
-  deleteUserById,
-  resetLoadUpdateDataStatus,
-  resetLoadDeleteDataStatus,
-} from "../../redux/reducer/userSlice";
 import { ApiLoadingStatus } from "../../utils/loadingStatus";
 
 type UserDetailType = {
@@ -78,7 +69,6 @@ export const User: React.FC = () => {
         loading={dataState.loadDataStatus === ApiLoadingStatus.Loading}
         updateSelectedData={setSelectedData}
       />
-      <UserDetail ref={drawerRef} />
     </>
   );
 };

@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Req,
+  Res,
 } from "@nestjs/common";
 import { UserService } from "../user/user.service";
 import { GroupChatSchema } from "./schema/groupChat.schema";
@@ -26,7 +27,7 @@ export class GroupChatController {
     type: [GroupChatSchema],
     description: "Successful",
   })
-  @Get("groupChat/:id")
+  @Get(":id")
   async getGroupChat(@Param("id") id: string, @Req() req: Request) {
     const authorizationHeader = (req.headers as any)["authorization"];
 
@@ -38,11 +39,6 @@ export class GroupChatController {
     return this.groupChatGateway.handleGetById({} as Socket, id);
   }
 
-  @ApiResponse({
-    status: 200,
-    type: [GroupChatSchema],
-    description: "Successful",
-  })
   @Post("")
   async createGroupChat(
     @Body() groupChatRequest: groupChatRequest,
@@ -50,19 +46,25 @@ export class GroupChatController {
   ) {
     try {
       const authorizationHeader = (req.headers as any)["authorization"];
-
       const userId = authorizationHeader.split(" ")[1]; // Bỏ chữ "Bearer"
+
       if (!userId) {
         throw new Error("Invalid authorization header format");
       }
       console.log("User id:", userId);
-      return this.groupChatGateway.handleCreateGroup(
+
+      const newGroup = await this.groupChatGateway.handleCreateGroup(
         {} as Socket,
         groupChatRequest
       );
+
+      return {
+        message: "Group created successfully",
+        data: newGroup,
+      };
     } catch (error) {
       console.log(error);
-      throw new InternalServerErrorException("Error when sending message");
+      throw new InternalServerErrorException("Error when creating group");
     }
   }
 }
