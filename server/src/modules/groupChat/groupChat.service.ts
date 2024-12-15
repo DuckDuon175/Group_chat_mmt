@@ -11,6 +11,18 @@ export class GroupChatService {
     private groupChatModel: Model<GroupChatSchema>
   ) {}
 
+  async getGroupChatByUserId(
+    user_id: string,
+  ): Promise<GroupChatSchema[]> {
+    return await this.groupChatModel.find({
+      $or: [
+        { hostId: user_id }, 
+        { member: user_id }  
+      ]
+    }).exec();
+  }
+  
+
   async saveGroupChat(
     groupChatRequest: groupChatRequest
   ): Promise<GroupChatSchema> {
