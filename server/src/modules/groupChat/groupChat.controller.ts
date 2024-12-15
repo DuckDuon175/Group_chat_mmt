@@ -38,7 +38,7 @@ export class GroupChatController {
       throw new Error("Invalid authorization header format");
     }
     console.log("User id:", userId);
-    return this.groupChatGateway.handleGetById({} as Socket, id);
+    return this.groupChatService.getGroupChatByUserId(id);
   }
 
   @Post("")
