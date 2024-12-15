@@ -14,11 +14,13 @@ import { ApiResponse } from "@nestjs/swagger";
 import { GroupChatGateway } from "./groupChat.gateway";
 import { Socket } from "socket.io";
 import { groupChatRequest } from "./dto/groupChat.request";
+import { GroupChatService } from "./groupChat.service";
 
 @Controller("groupChat")
 export class GroupChatController {
   constructor(
     private userService: UserService,
+    private groupChatService: GroupChatService,
     private readonly groupChatGateway: GroupChatGateway
   ) {}
 
@@ -53,15 +55,7 @@ export class GroupChatController {
       }
       console.log("User id:", userId);
 
-      const newGroup = await this.groupChatGateway.handleCreateGroup(
-        {} as Socket,
-        groupChatRequest
-      );
-
-      return {
-        message: "Group created successfully",
-        data: newGroup,
-      };
+      return await this.groupChatService.saveGroupChat(groupChatRequest);
     } catch (error) {
       console.log(error);
       throw new InternalServerErrorException("Error when creating group");
