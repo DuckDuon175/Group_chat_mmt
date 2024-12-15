@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./chat.scss";
 import {
   loadMessages,
@@ -7,15 +7,20 @@ import {
   sendMessage as sendMessageRedux,
 } from "../../redux/reducer/chatSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hook";
-import { MessageSchema, MessageRequest, UserResponse } from "../../api";
+import {
+  MessageSchema,
+  MessageRequest,
+  UserResponse,
+  GroupChatSchema,
+} from "../../api";
 import { ApiLoadingStatus } from "../../utils/loadingStatus";
 import { getAllUsers } from "../../redux/reducer/userSlice";
 import { Button, Col, Form, Input, Modal, Row, Select } from "antd";
-import type { SelectProps } from "antd";
 
 import io from "socket.io-client";
 import {
   createGroupChat,
+  getGroupChat,
   resetLoadCreateGroupChat,
 } from "../../redux/reducer/groupChatSlice";
 const socket = io("http://localhost:3000");
@@ -30,6 +35,8 @@ export const ChatMes: React.FC = () => {
   const [accountData, setAccountData] = useState<UserResponse>(
     {} as UserResponse
   );
+  const [groupChat, setGroupChat] = useState<GroupChatSchema[]>([]);
+  const [selectedGroup, setSelectedGroup] = useState<string>("");
   const [showTimestamp, setShowTimestamp] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -54,6 +61,13 @@ export const ChatMes: React.FC = () => {
   }, [userState.loadDataStatus]);
 
   useEffect(() => {
+    if (groupState.loadGetGroupChat === ApiLoadingStatus.Success) {
+      setGroupChat(groupState.data);
+      console.log(groupState.data);
+    }
+  }, [groupState.loadGetGroupChat]);
+
+  useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
@@ -62,6 +76,7 @@ export const ChatMes: React.FC = () => {
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem("ui-context") || "{}");
     setAccountData(userData);
+    dispatch(getGroupChat(userData.id));
   }, []);
 
   // Nhận tin nhắn từ socket
@@ -77,6 +92,7 @@ export const ChatMes: React.FC = () => {
 
   // Gửi tin nhắn
   const sendMessage = () => {
+    console.log(selectedGroup);
     if (newMessage.trim() !== "") {
       const messageData = {
         message: newMessage,
@@ -93,13 +109,17 @@ export const ChatMes: React.FC = () => {
   };
 
   useEffect(() => {
-    dispatch(
-      loadMessages({
-        receiverId: "23",
-        groupChatId: "fmECG",
-      })
-    );
-  }, [dispatch]);
+    if (!selectedGroup) {
+      dispatch(
+        loadMessages({
+          receiverId: "23",
+          groupChatId: "fmECG",
+        })
+      );
+    }
+    else setMessages([])
+  }, [dispatch, selectedGroup, accountData.id]);
+  
 
   useEffect(() => {
     if (dataState.loadGetMessageStatus === ApiLoadingStatus.Success) {
@@ -147,7 +167,7 @@ export const ChatMes: React.FC = () => {
       dispatch(resetLoadCreateGroupChat());
     }
   }, [groupState.loadCreateGroupChat]);
-  
+
   return (
     <div className="chat-container">
       {/* Sidebar */}
@@ -165,8 +185,14 @@ export const ChatMes: React.FC = () => {
           + Tạo nhóm chat
         </Button>
         <ul className="chat-groups">
-          <li className="group-item">Nhóm cộng đồng</li>
-          <li className="group-item">Nhóm ABC</li>
+          {groupChat.map((item) => (
+            <li
+            className={`group-item ${item._id === selectedGroup ? "selected" : ""}`}
+              onClick={() => setSelectedGroup(item._id)}
+            >
+              {item.title}
+            </li>
+          ))}
         </ul>
       </div>
 
@@ -284,6 +310,7 @@ export const ChatMes: React.FC = () => {
           >
             <Select
               mode="multiple"
+              defaultValue={[`${accountData.username}`]}
               placeholder="Chọn thành viên"
               options={userDropDown}
               allowClear

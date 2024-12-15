@@ -30,6 +30,9 @@
       margin-top: 10px;
       list-style: none;
   
+      .group-item.selected {
+        background-color: #008AFB; 
+      }
       .group-item {
         display: flex;
         justify-content: center;
@@ -44,7 +47,6 @@
   
         &:hover {
           background-color: #008afb;
-          color: white;
           box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
           transform: translateY(-2px);
         }

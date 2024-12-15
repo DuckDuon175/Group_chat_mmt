@@ -21,7 +21,6 @@ export class GroupChatService {
       ]
     }).exec();
   }
-  
 
   async saveGroupChat(
     groupChatRequest: groupChatRequest

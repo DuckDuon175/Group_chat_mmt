@@ -49,7 +49,6 @@ export const chatSlice = createSlice({
                 state.loadGetMessageStatus = ApiLoadingStatus.Loading;
             })
             .addCase(loadMessages.fulfilled, (state, action) => {
-                console.log(action)
                 state.messages = action.payload;
                 state.loadGetMessageStatus = ApiLoadingStatus.Success;
             })
