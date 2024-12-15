@@ -629,12 +629,13 @@
 
       //sign in
       var ssoUrl = "http://localhost:3000/users/login";
+      console.log(ssoUrl);
       const loginFunction = async () => {
         const email = document.querySelector("#input-user-name").value;
         const password = document.querySelector("#input-password").value;
 
         if (!email || !password) {
-          window.alert("Email and password are required");
+          window.alert("Cần điền đầy đủ email và password!");
           return;
         }
 
@@ -651,36 +652,37 @@
           });
 
           if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || "Failed to login");
+            window.alert("Đăng nhập thất bại!");
+            window.location.reload();
+          } else {
+            const data = await response.json();
+            console.log("Login successful:", data.user);
+
+            window.alert("Đăng nhập thành công!");
+
+            const form = document.createElement("form");
+            form.method = "POST";
+            form.mode = "cors";
+            form.cache = "no-cache";
+            form.action = "/";
+            const fields = {
+              user: JSON.stringify(data.user),
+            };
+
+            for (const [name, value] of Object.entries(fields)) {
+              const input = document.createElement("input");
+              input.type = "hidden";
+              input.name = name;
+              input.value = value;
+              form.appendChild(input);
+            }
+            document.body.appendChild(form);
+            form.submit();
           }
-
-          const data = await response.json();
-          console.log("Login successful:", data.user);
-
-          window.alert("Login successful!");
-
-          const form = document.createElement("form");
-              form.method = "POST";
-              form.mode = "cors";
-              form.cache = "no-cache";
-              form.action = "/";
-              const fields = {
-                user: JSON.stringify(data.user),
-              };
-
-              for (const [name, value] of Object.entries(fields)) {
-                const input = document.createElement("input");
-                input.type = "hidden";
-                input.name = name;
-                input.value = value;
-                form.appendChild(input);
-              }
-              document.body.appendChild(form);
-              form.submit();
         } catch (err) {
-          console.error("Error during login:", err);
-          window.alert(err.message || "Error during login");
+          console.log(err);
+          window.alert("Đăng nhập thất bại!");
+          window.location.reload();
         }
       };
 

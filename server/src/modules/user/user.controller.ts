@@ -51,18 +51,21 @@ export class UserController {
     @Body() loginRequest: { email: string; password: string },
     @Res() res: Response
   ) {
-    try {const user = await this.userService.login(
-      loginRequest.email,
-      loginRequest.password
-    );
-    if (!user) {
-      throw new BadRequestException("Invalid email or password");
-    }
-    return res.json({
-      message: "Login successful",
-      user: user,
-    });} catch(err) {
-      console.log(err)
+    try {
+      const user = await this.userService.login(
+        loginRequest.email,
+        loginRequest.password
+      );
+      if (!user) {
+        throw new BadRequestException("Invalid email or password");
+      }
+      return res.json({
+        message: "Login successful",
+        user: user,
+      });
+    } catch (err) {
+      console.log(err);
+      throw new InternalServerErrorException("Error when login");
     }
   }
 
