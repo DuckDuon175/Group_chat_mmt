@@ -80,15 +80,15 @@ export const ChatMes: React.FC = () => {
   }, []);
 
   // Nhận tin nhắn từ socket
-  useEffect(() => {
-    socket.on("receivedMessage", (data) => {
-      setMessages((prevMessages) => [...prevMessages, data]);
-    });
+  // useEffect(() => {
+  //   socket.on("receivedMessage", (data) => {
+  //     setMessages((prevMessages) => [...prevMessages, data]);
+  //   });
 
-    return () => {
-      socket.off("receivedMessage");
-    };
-  }, []);
+  //   return () => {
+  //     socket.off("receivedMessage");
+  //   };
+  // }, []);
 
   // Gửi tin nhắn
   const sendMessage = () => {
@@ -96,7 +96,7 @@ export const ChatMes: React.FC = () => {
     if (newMessage.trim() !== "") {
       const messageData = {
         message: newMessage,
-        groupChatId: "fmECG",
+        groupChatId: selectedGroup,
         timestamp: new Date().toISOString(),
         senderId: accountData.id,
         senderName: accountData.username,
@@ -109,11 +109,28 @@ export const ChatMes: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!selectedGroup) {
+    if (selectedGroup) {
+      console.log(selectedGroup);
+      // Gửi sự kiện tham gia nhóm
+      socket.emit("joinGroup", selectedGroup);
+  
+      // Lắng nghe tin nhắn từ nhóm này
+      socket.on(`receiveMessageFrom${selectedGroup}`, (message) => {
+        setMessages((prevMessages) => [...prevMessages, message]);
+      });
+    }
+  
+    return () => {
+      socket.off(`receiveMessageFrom${selectedGroup}`);  // Xóa lắng nghe khi nhóm thay đổi
+    };
+  }, [selectedGroup]);
+
+  useEffect(() => {
+    if (selectedGroup) {
       dispatch(
         loadMessages({
           receiverId: "23",
-          groupChatId: "fmECG",
+          groupChatId: selectedGroup,
         })
       );
     }
