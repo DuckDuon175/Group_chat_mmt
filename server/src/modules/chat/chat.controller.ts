@@ -77,7 +77,6 @@ export class ChatController {
     }
   }
 
-  // Gửi tin nhắn
   @ApiResponse({
     status: 200,
     type: [MessageSchema],
@@ -91,7 +90,7 @@ export class ChatController {
     try {
       const authorizationHeader = (req.headers as any)["authorization"];
 
-      const userId = authorizationHeader.split(" ")[1]; // Bỏ chữ "Bearer"
+      const userId = authorizationHeader.split(" ")[1];
       if (!userId) {
         throw new Error("Invalid authorization header format");
       }

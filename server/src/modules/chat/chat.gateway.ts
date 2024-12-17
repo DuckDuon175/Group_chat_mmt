@@ -22,15 +22,8 @@ export class ChatGateway {
   // Người dùng tham gia phòng chat (có thể là chat nhóm)
   @SubscribeMessage('joinGroup')
   async joinGroup(@MessageBody() groupChatId: string, @ConnectedSocket() client: Socket) {
-    client.join(groupChatId); // Người dùng sẽ gia nhập nhóm
+    client.join(groupChatId);
   }
-
-  // // Gửi tin nhắn
-  // @SubscribeMessage('sendMessage')
-  // async handleMessage(@MessageBody() messageRequest: MessageRequest, client: Socket) {
-  //   this.server.emit('receivedMessage', messageRequest);
-  //   await this.chatService.saveMessage(messageRequest);
-  // }
 
   @SubscribeMessage('sendMessage')
   async handleMessage(
@@ -48,11 +41,9 @@ export class ChatGateway {
     await this.chatService.saveMessage(messageRequest);
   }
 
-  // Lấy tin nhắn giữa hai người dùng (chat cá nhân) hoặc nhóm
   @SubscribeMessage('getMessages')
   async loadMessages(@MessageBody() messageRequest: MessageRequest, client: Socket) {
     let messages = await this.chatService.loadMessages(messageRequest);
-    // console.log("gatewway" , messages)
     return messages;
   }
 } 

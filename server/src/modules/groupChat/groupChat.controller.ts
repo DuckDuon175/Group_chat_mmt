@@ -12,7 +12,6 @@ import { UserService } from "../user/user.service";
 import { GroupChatSchema } from "./schema/groupChat.schema";
 import { ApiResponse } from "@nestjs/swagger";
 import { GroupChatGateway } from "./groupChat.gateway";
-import { Socket } from "socket.io";
 import { groupChatRequest } from "./dto/groupChat.request";
 import { GroupChatService } from "./groupChat.service";
 
@@ -37,7 +36,7 @@ export class GroupChatController {
     if (!userId) {
       throw new Error("Invalid authorization header format");
     }
-    console.log("User id:", userId);
+    console.log("Get group chat by user id:", userId);
     return this.groupChatService.getGroupChatByUserId(id);
   }
 
@@ -48,7 +47,7 @@ export class GroupChatController {
   ) {
     try {
       const authorizationHeader = (req.headers as any)["authorization"];
-      const userId = authorizationHeader.split(" ")[1]; // Bỏ chữ "Bearer"
+      const userId = authorizationHeader.split(" ")[1];
 
       if (!userId) {
         throw new Error("Invalid authorization header format");

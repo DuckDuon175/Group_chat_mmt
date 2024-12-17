@@ -30,10 +30,10 @@ export class ChatService {
     let receiverId = messageRequest.receiverId;
     if (messageRequest.groupChatId != null) {
       var groupChatId = messageRequest.groupChatId;
-      // Nếu là chat nhóm, tìm tin nhắn trong nhóm (có thể bạn cần sử dụng một trường groupId hoặc tương tự trong schema)
-      return this.chatModel.find({ groupChatId }).sort({ timestamp: 1 }); // Lấy tất cả tin nhắn trong nhóm, sắp xếp theo thời gian
+      // Nếu là chat nhóm, tìm tin nhắn trong nhóm
+      return this.chatModel.find({ groupChatId }).sort({ timestamp: 1 });
     } else {
-      console.log("chát cá nhân");
+      console.log("chat cá nhân");
       // Nếu là chat cá nhân, lấy tin nhắn giữa hai người
       return this.chatModel
         .find({
@@ -42,7 +42,7 @@ export class ChatService {
             { senderId: receiverId, receiverId: senderId },
           ],
         })
-        .sort({ timestamp: 1 }); // Lấy tất cả tin nhắn giữa hai người, sắp xếp theo thời gian
+        .sort({ timestamp: 1 });
     }
   }
 }
