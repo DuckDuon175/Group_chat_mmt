@@ -98,7 +98,7 @@ export const HeaderBar = () => {
 
           <div className="header-icon-box">
             <NavLink to="/chat">
-              <MessageFilled style={{ color: "#17a2b8" }} />
+              <MessageFilled style={{ color: "008afb" }} />
             </NavLink>
           </div>
 

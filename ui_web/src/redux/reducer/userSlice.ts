@@ -6,6 +6,7 @@ import { Service } from "../../api";
 
 interface IUserState {
   data: UserResponse[];
+  user: UserResponse;
   loadDataStatus: ApiLoadingStatus;
   loadDoctorDataStatus: ApiLoadingStatus;
   loadGetUserByIdStatus: ApiLoadingStatus;
@@ -16,6 +17,7 @@ interface IUserState {
 
 const initialState: IUserState = {
   data: [],
+  user: {} as UserResponse,
   loadDataStatus: ApiLoadingStatus.None,
   loadDoctorDataStatus: ApiLoadingStatus.None,
   loadGetUserByIdStatus: ApiLoadingStatus.None,
