@@ -13,6 +13,7 @@ export class ChatService {
   // Lưu tin nhắn vào MongoDB
   async saveMessage(messageRequest: MessageRequest): Promise<MessageSchema> {
     console.log(messageRequest);
+    messageRequest.time = Math.floor(Date.now() / 1000);
     const chat = new this.chatModel(messageRequest);
     return chat.save();
   }
