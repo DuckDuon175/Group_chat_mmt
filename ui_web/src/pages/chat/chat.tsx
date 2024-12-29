@@ -96,7 +96,7 @@ export const ChatMes: React.FC = () => {
         senderId: accountData.id,
         senderName: accountData.username,
       };
-      
+
       const messageRequest = MessageRequest.fromJS(messageData);
       dispatch(sendMessageRedux(messageRequest));
       setNewMessage("");
@@ -190,6 +190,13 @@ export const ChatMes: React.FC = () => {
           <span className="logo">Tin nhắn</span>
         </div>
 
+        <Button
+          className="create-group-btn"
+          onClick={() => setIsModalOpen(true)}
+        >
+          + Tạo nhóm
+        </Button>
+
         <div className="search">
           <input
             type="text"
@@ -206,21 +213,21 @@ export const ChatMes: React.FC = () => {
               <div
                 key={item._id}
                 className={`userChat ${
-                  (selectedGroup === item._id) 
-                    ? "active"
-                    : ""
+                  selectedGroup === item._id ? "active" : ""
                 }`}
                 onClick={() => {
-                    setGroupTitle(item.title);
-                    setSelectedGroup(item._id);
+                  setGroupTitle(item.title);
+                  setSelectedGroup(item._id);
                 }}
               >
-                <img src={groupAvatar } alt="avatar" />
+                <img
+                  src={groupAvatar}
+                  alt="avatar"
+                  style={{ marginLeft: "10px" }}
+                />
                 <div className="userChatInfo">
                   <span>{item.title}</span>
-                  <p>
-                    {`Nhóm ${item.title}`}
-                  </p>
+                  <p>{`Nhóm ${item.title}`}</p>
                 </div>
               </div>
             );
@@ -231,14 +238,11 @@ export const ChatMes: React.FC = () => {
       <div
         className="chat-box-container"
         style={{
-          borderRight:
-            !selectedGroup ? "1px solid #ccc" : "",
-          borderTop: !selectedGroup  ? "1px solid #ccc" : "",
-          borderBottom:
-            !selectedGroup  ? "1px solid #ccc" : "",
-          borderTopRightRadius: !selectedGroup  ? "10px" : "",
-          borderBottomRightRadius:
-            !selectedGroup  ? "10px" : "",
+          borderRight: !selectedGroup ? "1px solid #ccc" : "",
+          borderTop: !selectedGroup ? "1px solid #ccc" : "",
+          borderBottom: !selectedGroup ? "1px solid #ccc" : "",
+          borderTopRightRadius: !selectedGroup ? "10px" : "",
+          borderBottomRightRadius: !selectedGroup ? "10px" : "",
         }}
       >
         {!selectedGroup ? (
@@ -253,9 +257,7 @@ export const ChatMes: React.FC = () => {
         ) : (
           <>
             <div className="chat-header">
-              <h3>
-                {`Tin nhắn với nhóm ${groupTitle}` }
-              </h3>
+              <h3>{`Tin nhắn với nhóm ${groupTitle}`}</h3>
             </div>
 
             <div className="chat-messages">
@@ -322,9 +324,9 @@ export const ChatMes: React.FC = () => {
                 ))
               ) : (
                 <div>
-                  {selectedGroup.includes(accountData.id) ?
-                  
-                     "💬 Chưa có tin nhắn nào trong nhóm này, hãy gửi tin nhắn đầu tiên để bắt đầu cuộc trò chuyện! 🚀" : null}
+                  {selectedGroup.includes(accountData.id)
+                    ? "💬 Chưa có tin nhắn nào trong nhóm này, hãy gửi tin nhắn đầu tiên để bắt đầu cuộc trò chuyện! 🚀"
+                    : null}
                 </div>
               )}
               <div ref={messagesEndRef} />
