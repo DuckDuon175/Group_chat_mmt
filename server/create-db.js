@@ -20,20 +20,20 @@ connection.connect((err) => {
   console.log("Connect db successfully ID connection:" + connection.threadId);
 });
 
-connection.query(`DROP DATABASE IF EXISTS identity`, (err, results, fields) => {
+connection.query(`DROP DATABASE IF EXISTS mmt`, (err, results, fields) => {
   if (err) {
     console.error("Execute query failed " + err.stack);
     return;
   }
 });
-connection.query(`CREATE DATABASE identity`, (err, results, fields) => {
+connection.query(`CREATE DATABASE mmt`, (err, results, fields) => {
   if (err) {
     console.error("Execute query failed " + err.stack);
     return;
   }
 
   // Hiển thị kết quả
-  console.log("Create new identity");
+  console.log("Create new mmt");
 });
 
 // Đóng kết nối

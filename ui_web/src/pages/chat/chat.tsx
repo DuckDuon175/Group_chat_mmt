@@ -7,15 +7,18 @@ import {
   sendMessage as sendMessageRedux,
 } from "../../redux/reducer/chatSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hook";
+import dayjs from "dayjs";
 import {
   MessageSchema,
   MessageRequest,
   UserResponse,
   GroupChatSchema,
 } from "../../api";
+import groupAvatar from "../../assets/groupAvatar.svg";
 import { ApiLoadingStatus } from "../../utils/loadingStatus";
 import { getAllUsers } from "../../redux/reducer/userSlice";
 import { Button, Col, Form, Input, Modal, Row, Select } from "antd";
+import { IoMdChatbubbles } from "react-icons/io";
 
 import io from "socket.io-client";
 import {
@@ -46,6 +49,7 @@ export const ChatMes: React.FC = () => {
   const [groupTitle, setGroupTitle] = useState("");
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const [form] = Form.useForm();
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     dispatch(getAllUsers());
@@ -88,11 +92,11 @@ export const ChatMes: React.FC = () => {
       const messageData = {
         message: newMessage,
         groupChatId: selectedGroup,
-        timestamp: new Date().toISOString(),
+        time: Math.floor(Date.now() / 1000),
         senderId: accountData.id,
         senderName: accountData.username,
       };
-
+      
       const messageRequest = MessageRequest.fromJS(messageData);
       dispatch(sendMessageRedux(messageRequest));
       setNewMessage("");
@@ -174,53 +178,84 @@ export const ChatMes: React.FC = () => {
     }
   }, [groupState.loadCreateGroupChat]);
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value.toLowerCase());
+  };
+
   return (
     <div className="chat-container">
       <div className="sidebar">
-        <Button
-          style={{
-            marginBottom: "10px",
-            borderRadius: "8px",
-            height: "35px",
-            boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
-          }}
-          onClick={() => setIsModalOpen(true)}
-        >
-          + Tạo nhóm chat
-        </Button>
-        <Input type="text" className="search" placeholder="Tìm kiếm..." />
-        <ul className="chat-groups">
-          {groupChat.map((item) => (
-            <li
-              className={`group-item ${
-                item._id === selectedGroup ? "selected" : ""
-              }`}
-              key={item._id}
-              onClick={() => {
-                setGroupTitle(item.title);
-                setSelectedGroup(item._id);
-              }}
-            >
-              {item.title}
-            </li>
-          ))}
-        </ul>
+        <div className="navbar">
+          <IoMdChatbubbles className="chat-icon" />
+          <span className="logo">Tin nhắn</span>
+        </div>
+
+        <div className="search">
+          <input
+            type="text"
+            placeholder="Tìm kiếm..."
+            className="search-bar"
+            onChange={(e) => handleSearchChange(e)}
+            value={searchQuery}
+          />
+        </div>
+
+        <div className="chats">
+          {[...groupChat].map((item) => {
+            return (
+              <div
+                key={item._id}
+                className={`userChat ${
+                  (selectedGroup === item._id) 
+                    ? "active"
+                    : ""
+                }`}
+                onClick={() => {
+                    setGroupTitle(item.title);
+                    setSelectedGroup(item._id);
+                }}
+              >
+                <img src={groupAvatar } alt="avatar" />
+                <div className="userChatInfo">
+                  <span>{item.title}</span>
+                  <p>
+                    {`Nhóm ${item.title}`}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
-      <div className="chat-box-container">
-        {groupTitle.length === 0 ? (
+      <div
+        className="chat-box-container"
+        style={{
+          borderRight:
+            !selectedGroup ? "1px solid #ccc" : "",
+          borderTop: !selectedGroup  ? "1px solid #ccc" : "",
+          borderBottom:
+            !selectedGroup  ? "1px solid #ccc" : "",
+          borderTopRightRadius: !selectedGroup  ? "10px" : "",
+          borderBottomRightRadius:
+            !selectedGroup  ? "10px" : "",
+        }}
+      >
+        {!selectedGroup ? (
           <div style={{ textAlign: "center", marginTop: "20px" }}>
             <img
               src={groupChatImg}
               alt="No Group Selected"
-              style={{ width: "550px"}}
+              style={{ width: "550px" }}
             />
-            <h3>Tạo hoặc chọn một nhóm để bắt đầu nhắn tin!</h3>
+            <h3>Tạo hoặc chọn một nhóm để bắt đầu cuộc trò chuyện! 🚀</h3>
           </div>
         ) : (
           <>
             <div className="chat-header">
-              <h2>Tin nhắn nhóm {groupTitle}</h2>
+              <h3>
+                {`Tin nhắn với nhóm ${groupTitle}` }
+              </h3>
             </div>
 
             <div className="chat-messages">
@@ -249,8 +284,10 @@ export const ChatMes: React.FC = () => {
                             {showTimestamp === index && (
                               <div className="message-time">
                                 <em>
-                                  {showUser} -{" "}
-                                  {new Date(msg.time).toLocaleString()}
+                                  {showUser} - {""}
+                                  {dayjs
+                                    .unix(msg.time)
+                                    .format("HH:mm, DD/MM/YYYY")}
                                 </em>
                               </div>
                             )}
@@ -270,8 +307,10 @@ export const ChatMes: React.FC = () => {
                             {showTimestamp === index && (
                               <div className="message-time">
                                 <em>
-                                  {showUser} -{" "}
-                                  {new Date(msg.time).toLocaleString()}
+                                  {showUser} - {""}
+                                  {dayjs
+                                    .unix(msg.time)
+                                    .format("HH:mm, DD/MM/YYYY")}
                                 </em>
                               </div>
                             )}
@@ -282,7 +321,11 @@ export const ChatMes: React.FC = () => {
                   </div>
                 ))
               ) : (
-                <div>Chưa có tin nhắn nào trong nhóm này!</div>
+                <div>
+                  {selectedGroup.includes(accountData.id) ?
+                  
+                     "💬 Chưa có tin nhắn nào trong nhóm này, hãy gửi tin nhắn đầu tiên để bắt đầu cuộc trò chuyện! 🚀" : null}
+                </div>
               )}
               <div ref={messagesEndRef} />
             </div>
@@ -303,7 +346,7 @@ export const ChatMes: React.FC = () => {
       </div>
 
       <Modal
-        width={"490px"}
+        width={"400px"}
         title="Tạo nhóm mới"
         open={isModalOpen}
         onOk={() => form.submit()}
