@@ -30,6 +30,13 @@ export const getAllUsers = createAsyncThunkWrap("/users", async () => {
   return await Service.userService.getAllUsers();
 });
 
+export const getUserById = createAsyncThunkWrap(
+  "/user/id",
+  async (id: string) => {
+    return await Service.userService.getUserById(id);
+  }
+);
+
 export const updateUserById = createAsyncThunkWrap(
   "/users/update",
   async (user: UserRequest) => {

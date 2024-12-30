@@ -50,6 +50,8 @@ export const ChatMes: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const [form] = Form.useForm();
   const [searchQuery, setSearchQuery] = useState("");
+  const [member, setMember] = useState<any>([]);
+  const [showMember, setShowMember] = useState(false);
 
   useEffect(() => {
     dispatch(getAllUsers());
@@ -128,6 +130,12 @@ export const ChatMes: React.FC = () => {
           groupChatId: selectedGroup,
         })
       );
+      let result: GroupChatSchema = {} as GroupChatSchema;
+      for (const item of groupChat) {
+        if (item._id === selectedGroup) result = item;
+      }
+      console.log(result.member);
+      setMember(result.username);
     } else setMessages([]);
   }, [dispatch, selectedGroup, accountData.id]);
 
@@ -250,14 +258,19 @@ export const ChatMes: React.FC = () => {
             <img
               src={groupChatImg}
               alt="No Group Selected"
-              style={{ width: "550px" }}
+              style={{ width: "100%", maxWidth: "550px" }}
             />
             <h3>Tạo hoặc chọn một nhóm để bắt đầu cuộc trò chuyện! 🚀</h3>
           </div>
         ) : (
           <>
             <div className="chat-header">
-              <h3>{`Tin nhắn với nhóm ${groupTitle}`}</h3>
+              <h3
+                onClick={() => {
+                  setShowMember(true);
+                }}
+                style={{ cursor: "pointer" }}
+              >{`Tin nhắn với nhóm ${groupTitle}`}</h3>
             </div>
 
             <div className="chat-messages">
@@ -324,9 +337,8 @@ export const ChatMes: React.FC = () => {
                 ))
               ) : (
                 <div>
-                  {selectedGroup.includes(accountData.id)
-                    ? "💬 Chưa có tin nhắn nào trong nhóm này, hãy gửi tin nhắn đầu tiên để bắt đầu cuộc trò chuyện! 🚀"
-                    : null}
+                  💬 Chưa có tin nhắn nào trong nhóm này, hãy gửi tin nhắn đầu
+                  tiên để bắt đầu cuộc trò chuyện! 🚀
                 </div>
               )}
               <div ref={messagesEndRef} />
@@ -346,6 +358,20 @@ export const ChatMes: React.FC = () => {
           </>
         )}
       </div>
+
+      <Modal
+        width={"400px"}
+        title="Các thành viên trong nhóm"
+        open={showMember}
+        footer={null}
+        onCancel={() => setShowMember(false)}
+      >
+        <ul>
+          {member.map((item: any, index: number) => (
+            <li key={index}>{item}</li>
+          ))}
+        </ul>
+      </Modal>
 
       <Modal
         width={"400px"}

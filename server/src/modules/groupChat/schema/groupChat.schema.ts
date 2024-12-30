@@ -12,6 +12,9 @@ export class GroupChatSchema extends Document {
   @Prop({ required: true })
   member: [string];
 
+  @Prop({ required: false })
+  username: string[];
+
   @Prop({ required: true })
   sendEvent: string;
 

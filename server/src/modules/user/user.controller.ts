@@ -108,6 +108,28 @@ export class UserController {
     }
   }
 
+  @Get("id/:id")
+  @ApiResponse({
+    status: 200,
+    type: UserResponse,
+    description: "successful",
+  })
+  async getUserById(
+    @Res() res: Response,
+    @Param("id") id: string
+  ) {
+    console.log(`[P]:::Find user by id: `, id);
+    if (!id) {
+      throw new BadRequestException("id is required");
+    }
+    try {
+      const user = await this.userService.getUserById(id);
+      return res.json(user);
+    } catch (err) {
+      throw new NotFoundException("No user found, please try again");
+    }
+  }
+
   @Get("username/:username")
   @ApiResponse({
     status: 200,

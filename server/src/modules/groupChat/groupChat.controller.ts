@@ -37,7 +37,17 @@ export class GroupChatController {
       throw new Error("Invalid authorization header format");
     }
     console.log("Get group chat by user id:", userId);
-    return this.groupChatService.getGroupChatByUserId(id);
+    let groupChat = await this.groupChatService.getGroupChatByUserId(id);
+    for(let group of groupChat) {
+      let username = [];
+      for(const item of group.member) {
+        console.log(item);
+        username.push((await this.userService.getUserById(item)).username)
+      }
+      group.username  = username;
+    }
+    console.log(groupChat)
+    return groupChat;
   }
 
   @Post("")
