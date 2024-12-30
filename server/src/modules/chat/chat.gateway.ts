@@ -30,15 +30,25 @@ export class ChatGateway {
     @MessageBody() messageRequest: MessageRequest,
     client: Socket
   ) {
+    try 
+    {
+      const groupChatId = messageRequest.groupChatId;
+      const receiveEvent = `receiveMessageFrom${groupChatId}`;
+  
+      // Gửi tin nhắn đến tất cả các client trong nhóm
+      this.server.to(groupChatId).emit(receiveEvent, messageRequest);
+  
+      // Lưu tin nhắn vào cơ sở dữ liệu
+      await this.chatService.saveMessage(messageRequest);
+      this.server.emit('ack', 'Message received and saved.');
+      this.server.emit('ackBack', (ackBack: any) => {
+        if (ackBack) {
+          console.log("Client đã nhận ack back");
+        }
+      });
+    }
     // Xác định event và nhóm
-    const groupChatId = messageRequest.groupChatId;
-    const receiveEvent = `receiveMessageFrom${groupChatId}`;
-
-    // Gửi tin nhắn đến tất cả các client trong nhóm
-    this.server.to(groupChatId).emit(receiveEvent, messageRequest);
-
-    // Lưu tin nhắn vào cơ sở dữ liệu
-    await this.chatService.saveMessage(messageRequest);
+   catch (error) { console.log(error); }
   }
 
   @SubscribeMessage('getMessages')

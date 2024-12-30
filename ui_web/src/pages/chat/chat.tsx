@@ -108,19 +108,36 @@ export const ChatMes: React.FC = () => {
   useEffect(() => {
     if (selectedGroup) {
       console.log("Group selected id: ", selectedGroup);
+      
       // Gửi sự kiện tham gia nhóm
       socket.emit("joinGroup", selectedGroup);
-
+  
       // Lắng nghe tin nhắn từ nhóm này
-      socket.on(`receiveMessageFrom${selectedGroup}`, (message) => {
+      const receiveMessageHandler = (message: any) => {
         setMessages((prevMessages) => [...prevMessages, message]);
+      };
+  
+      socket.on(`receiveMessageFrom${selectedGroup}`, receiveMessageHandler);
+  
+      socket.on("ack", (ack) => {
+        console.log("Đã nhận tin nhắn");
+        socket.emit("ackBack", selectedGroup);
       });
+  
+      // Thiết lập timeout để ngắt lắng nghe sau một khoảng thời gian
+      const timeout = setTimeout(() => {
+        console.warn("Timeout reached for group:", selectedGroup);
+        socket.off(`receiveMessageFrom${selectedGroup}`, receiveMessageHandler);
+      }, 60000); // Thời gian timeout, ở đây là 60 giây
+  
+      return () => {
+        // Cleanup khi unmount hoặc thay đổi selectedGroup
+        clearTimeout(timeout);
+        socket.off(`receiveMessageFrom${selectedGroup}`, receiveMessageHandler);
+      };
     }
-
-    return () => {
-      socket.off(`receiveMessageFrom${selectedGroup}`);
-    };
   }, [selectedGroup]);
+  
 
   useEffect(() => {
     if (selectedGroup) {
